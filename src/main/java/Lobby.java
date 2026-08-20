@@ -25,7 +25,7 @@ public class Lobby {
         System.out.println(divider);
 
         Scanner scanner = new Scanner(System.in);
-        Object[] tasks = new Object[100];
+        Task[] tasks = new Task[100];
         int taskCount = 0;
         while (true) {
             String command = scanner.nextLine();
@@ -48,7 +48,7 @@ public class Lobby {
                         System.out.println(" Please enter the number of a task in the list.");
                     } else {
                         int taskIndex = taskNumber - 1;
-                        markTaskAsDone(tasks[taskIndex]);
+                        tasks[taskIndex].markAsDone();
                         System.out.println(" Nice! I've marked this task as done:");
                         System.out.println("   " + tasks[taskIndex]);
                     }
@@ -63,7 +63,7 @@ public class Lobby {
                         System.out.println(" Please enter the number of a task in the list.");
                     } else {
                         int taskIndex = taskNumber - 1;
-                        markTaskAsNotDone(tasks[taskIndex]);
+                        tasks[taskIndex].markAsNotDone();
                         System.out.println(" OK, I've marked this task as not done yet:");
                         System.out.println("   " + tasks[taskIndex]);
                     }
@@ -109,43 +109,11 @@ public class Lobby {
      * @param task the task that was added
      * @param taskCount the number of tasks currently stored
      */
-    private static void printTaskAdded(Object task, int taskCount) {
+    private static void printTaskAdded(Task task, int taskCount) {
         System.out.println(" Got it. I've added this task:");
         System.out.println("   " + task);
         String taskWord = taskCount == 1 ? "task" : "tasks";
         System.out.println(" Now you have " + taskCount + " " + taskWord + " in the list.");
     }
 
-    /**
-     * Marks an independent task-type object as complete.
-     *
-     * <p>This repeated type check is intentional for the pre-inheritance version of the program.
-     * The inheritance extension will replace it with polymorphic method calls.</p>
-     *
-     * @param task the task object to update
-     */
-    private static void markTaskAsDone(Object task) {
-        if (task instanceof Todo) {
-            ((Todo) task).markAsDone();
-        } else if (task instanceof Deadline) {
-            ((Deadline) task).markAsDone();
-        } else if (task instanceof Event) {
-            ((Event) task).markAsDone();
-        }
-    }
-
-    /**
-     * Marks an independent task-type object as incomplete.
-     *
-     * @param task the task object to update
-     */
-    private static void markTaskAsNotDone(Object task) {
-        if (task instanceof Todo) {
-            ((Todo) task).markAsNotDone();
-        } else if (task instanceof Deadline) {
-            ((Deadline) task).markAsNotDone();
-        } else if (task instanceof Event) {
-            ((Event) task).markAsNotDone();
-        }
-    }
 }

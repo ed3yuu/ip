@@ -1,10 +1,8 @@
 /**
  * Represents a task that must be completed by a given date or time string.
  */
-public class Deadline {
-    private final String description;
+public class Deadline extends Task {
     private final String by;
-    private boolean isDone;
 
     /**
      * Creates an incomplete deadline.
@@ -13,18 +11,8 @@ public class Deadline {
      * @param by the deadline text supplied by the user
      */
     public Deadline(String description, String by) {
-        this.description = description;
+        super(description);
         this.by = by;
-    }
-
-    /** Marks this deadline as complete. */
-    public void markAsDone() {
-        isDone = true;
-    }
-
-    /** Marks this deadline as incomplete. */
-    public void markAsNotDone() {
-        isDone = false;
     }
 
     /**
@@ -34,6 +22,6 @@ public class Deadline {
      */
     @Override
     public String toString() {
-        return "[D][" + (isDone ? "X" : " ") + "] " + description + " (by: " + by + ")";
+        return "[D]" + super.toString() + " (by: " + by + ")";
     }
 }

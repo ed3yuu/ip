@@ -46,4 +46,15 @@ public class Task {
     public String getDescription() {
         return description;
     }
+
+    /**
+     * Formats the shared completion status and description of a task.
+     * Subclasses add their task-type marker and any date/time details.
+     *
+     * @return the completion status and description
+     */
+    @Override
+    public String toString() {
+        return "[" + getStatusIcon() + "] " + description;
+    }
 }

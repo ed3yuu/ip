@@ -1,9 +1,7 @@
 /**
  * Represents a task without a date or time.
  */
-public class Todo {
-    private final String description;
-    private boolean isDone;
+public class Todo extends Task {
 
     /**
      * Creates a to-do that is initially incomplete.
@@ -11,17 +9,7 @@ public class Todo {
      * @param description the task description
      */
     public Todo(String description) {
-        this.description = description;
-    }
-
-    /** Marks this to-do as complete. */
-    public void markAsDone() {
-        isDone = true;
-    }
-
-    /** Marks this to-do as incomplete. */
-    public void markAsNotDone() {
-        isDone = false;
+        super(description);
     }
 
     /**
@@ -31,6 +19,6 @@ public class Todo {
      */
     @Override
     public String toString() {
-        return "[T][" + (isDone ? "X" : " ") + "] " + description;
+        return "[T]" + super.toString();
     }
 }

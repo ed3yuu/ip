@@ -1,11 +1,9 @@
 /**
  * Represents a task that has user-supplied start and end date/time strings.
  */
-public class Event {
-    private final String description;
+public class Event extends Task {
     private final String from;
     private final String to;
-    private boolean isDone;
 
     /**
      * Creates an incomplete event.
@@ -15,19 +13,9 @@ public class Event {
      * @param to the event end text supplied by the user
      */
     public Event(String description, String from, String to) {
-        this.description = description;
+        super(description);
         this.from = from;
         this.to = to;
-    }
-
-    /** Marks this event as complete. */
-    public void markAsDone() {
-        isDone = true;
-    }
-
-    /** Marks this event as incomplete. */
-    public void markAsNotDone() {
-        isDone = false;
     }
 
     /**
@@ -37,7 +25,7 @@ public class Event {
      */
     @Override
     public String toString() {
-        return "[E][" + (isDone ? "X" : " ") + "] " + description
+        return "[E]" + super.toString()
                 + " (from: " + from + " to: " + to + ")";
     }
 }
