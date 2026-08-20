@@ -35,7 +35,11 @@ public class Lobby {
                 System.out.println(" Bye. Hope to see you again soon!");
                 System.out.println(divider);
                 break;
-            }  else {
+            } else if (command.equals("list")) {
+                for (int i = 0; i < taskCount; i++) {
+                    System.out.println(" " + (i + 1) + ". " + tasks[i]);
+                }
+            }else {
                 tasks[taskCount] = command;
                 taskCount++;
                 System.out.println(" added: " + command);
