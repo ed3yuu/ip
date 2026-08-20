@@ -1,0 +1,69 @@
+# UI Test Plan
+
+This file is the source of truth for console UI test cases. Add one section per case and run them in the order shown. Use exact expected output unless a case explicitly defines a comparison rule.
+
+## Test environment
+
+- Java version: 25
+- Working directory: repository root
+- Default comparison rule: exact output, including whitespace and line breaks
+- Line-ending rule: platform line-ending differences may be normalized to `\n`
+
+## Test cases
+
+### UI-001 Add and list every task type
+
+- Aim: Verify that to-dos, deadlines, and events are stored and displayed with their type-specific details. Deadline and event dates/times must be kept as the exact strings entered.
+- Command: `java -cp out Lobby`
+- Inputs, in order:
+  1. `todo borrow book`
+  2. `deadline do homework /by no idea :-p`
+  3. `event project meeting /from Mon 2pm /to 4pm`
+  4. `mark 2`
+  5. `list`
+  6. `bye`
+- Expected output:
+
+  ```text
+  ____________________________________________________________
+   _           _     _
+  | |    ___  | |__ | |__  _   _
+  | |   / _ \ | '_ \| '_ \| | | |
+  | |__| (_) | |_) | |_) | |_| |
+  |_____\___/|_.__/|_.__/ \__, |
+                           |___/
+  Hello! I'm Lobby.
+  What can I do for you?
+  ____________________________________________________________
+  ____________________________________________________________
+   Got it. I've added this task:
+     [T][ ] borrow book
+   Now you have 1 task in the list.
+  ____________________________________________________________
+  ____________________________________________________________
+   Got it. I've added this task:
+     [D][ ] do homework (by: no idea :-p)
+   Now you have 2 tasks in the list.
+  ____________________________________________________________
+  ____________________________________________________________
+   Got it. I've added this task:
+     [E][ ] project meeting (from: Mon 2pm to: 4pm)
+   Now you have 3 tasks in the list.
+  ____________________________________________________________
+  ____________________________________________________________
+   Nice! I've marked this task as done:
+     [D][X] do homework (by: no idea :-p)
+  ____________________________________________________________
+  ____________________________________________________________
+   Here are the tasks in your list:
+   1.[T][ ] borrow book
+   2.[D][X] do homework (by: no idea :-p)
+   3.[E][ ] project meeting (from: Mon 2pm to: 4pm)
+  ____________________________________________________________
+  ____________________________________________________________
+   Bye. Hope to see you again soon!
+  ____________________________________________________________
+  ```
+
+- Comparison rule: exact, after normalizing Windows line endings to `\n`.
+- Setup: Compile all files in `src/main/java` to the `out` folder with Java 25 before running the command.
