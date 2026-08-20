@@ -103,6 +103,53 @@ This file is the source of truth for console UI test cases. Add one section per 
 - Comparison rule: exact, after normalizing Windows line endings to `\n`.
 - Setup: Compile all files in `src/main/java` to the `out` folder with Java 25 before running the command.
 
+### UI-004 Reject malformed event commands
+
+- Aim: Verify that event commands report specific missing parts and do not add an incomplete task.
+- Command: `java -cp out Lobby`
+- Inputs, in order:
+  1. `event`
+  2. `event /from Mon 2pm /to 4pm`
+  3. `event meeting /from /to 4pm`
+  4. `event meeting /from Mon 2pm /to`
+  5. `list`
+  6. `bye`
+- Expected output:
+
+  ```text
+  ____________________________________________________________
+   _           _     _
+  | |    ___  | |__ | |__  _   _
+  | |   / _ \ | '_ \| '_ \| | | |
+  | |__| (_) | |_) | |_) | |_| |
+  |_____|\___/|_.__/|_.__/ \__, |
+                           |___/
+  Hello! I'm Lobby.
+  What can I do for you?
+  ____________________________________________________________
+  ____________________________________________________________
+   An event needs a /from start time. Try: event <description> /from <start> /to <end>.
+  ____________________________________________________________
+  ____________________________________________________________
+   An event needs a description before /from.
+  ____________________________________________________________
+  ____________________________________________________________
+   An event needs a start time after /from.
+  ____________________________________________________________
+  ____________________________________________________________
+   An event needs an end time after /to.
+  ____________________________________________________________
+  ____________________________________________________________
+   Here are the tasks in your list:
+  ____________________________________________________________
+  ____________________________________________________________
+   Bye. Hope to see you again soon!
+  ____________________________________________________________
+  ```
+
+- Comparison rule: exact, after normalizing Windows line endings to `\n`.
+- Setup: Compile all files in `src/main/java` to the `out` folder with Java 25 before running the command.
+
 ### UI-003 Reject malformed deadline commands
 
 - Aim: Verify that deadline commands report specific missing parts and do not add an incomplete task.
