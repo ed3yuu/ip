@@ -57,6 +57,21 @@ public class Lobby {
                 } catch (NumberFormatException e) {
                     System.out.println(" Please use mark followed by a task number.");
                 }
+            } else if (command.startsWith("unmark ")) {
+                String taskNumberText = command.substring("unmark ".length()).trim();
+                try {
+                    int taskNumber = Integer.parseInt(taskNumberText);
+                    if (taskNumber < 1 || taskNumber > taskCount) {
+                        System.out.println(" Please enter the number of a task in the list.");
+                    } else {
+                        int taskIndex = taskNumber - 1;
+                        taskDone[taskIndex] = false;
+                        System.out.println(" OK, I've marked this task as not done yet:");
+                        System.out.println("   [ ] " + tasks[taskIndex]);
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println(" Please use unmark followed by a task number.");
+                }
             } else {
                 tasks[taskCount] = command;
                 taskCount++;
