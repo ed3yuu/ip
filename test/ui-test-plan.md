@@ -67,3 +67,38 @@ This file is the source of truth for console UI test cases. Add one section per 
 
 - Comparison rule: exact, after normalizing Windows line endings to `\n`.
 - Setup: Compile all files in `src/main/java` to the `out` folder with Java 25 before running the command.
+
+### UI-002 Reject a to-do without a description
+
+- Aim: Verify that a command beginning with `todo` but missing its description shows a helpful error and does not add a task.
+- Command: `java -cp out Lobby`
+- Inputs, in order:
+  1. `todo`
+  2. `list`
+  3. `bye`
+- Expected output:
+
+  ```text
+  ____________________________________________________________
+   _           _     _
+  | |    ___  | |__ | |__  _   _
+  | |   / _ \ | '_ \| '_ \| | | |
+  | |__| (_) | |_) | |_) | |_| |
+  |_____|\___/|_.__/|_.__/ \__, |
+                           |___/
+  Hello! I'm Lobby.
+  What can I do for you?
+  ____________________________________________________________
+  ____________________________________________________________
+   A to-do needs a description. Try: todo <description>.
+  ____________________________________________________________
+  ____________________________________________________________
+   Here are the tasks in your list:
+  ____________________________________________________________
+  ____________________________________________________________
+   Bye. Hope to see you again soon!
+  ____________________________________________________________
+  ```
+
+- Comparison rule: exact, after normalizing Windows line endings to `\n`.
+- Setup: Compile all files in `src/main/java` to the `out` folder with Java 25 before running the command.

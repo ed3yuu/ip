@@ -70,11 +70,15 @@ public class Lobby {
                 } catch (NumberFormatException e) {
                     System.out.println(" Please use unmark followed by a task number.");
                 }
-            } else if (command.startsWith("todo ")) {
-                Todo todo = new Todo(command.substring("todo ".length()).trim());
-                tasks[taskCount] = todo;
-                taskCount++;
-                printTaskAdded(todo, taskCount);
+            } else if (command.startsWith("todo")) {
+                try {
+                    Todo todo = createTodo(command);
+                    tasks[taskCount] = todo;
+                    taskCount++;
+                    printTaskAdded(todo, taskCount);
+                } catch (LobbyException e) {
+                    System.out.println(" " + e.getMessage());
+                }
             } else if (command.startsWith("deadline ")) {
                 String[] deadlineParts = command.substring("deadline ".length()).split(" /by ", 2);
                 if (deadlineParts.length < 2) {
@@ -114,6 +118,21 @@ public class Lobby {
         System.out.println("   " + task);
         String taskWord = taskCount == 1 ? "task" : "tasks";
         System.out.println(" Now you have " + taskCount + " " + taskWord + " in the list.");
+    }
+
+    /**
+     * Creates a to-do from a user command after validating that it has a description.
+     *
+     * @param command the complete command entered by the user
+     * @return the new to-do
+     * @throws LobbyException if the command does not include a description
+     */
+    private static Todo createTodo(String command) throws LobbyException {
+        String description = command.substring("todo".length()).trim();
+        if (description.isEmpty()) {
+            throw new LobbyException("A to-do needs a description. Try: todo <description>.");
+        }
+        return new Todo(description);
     }
 
 }
