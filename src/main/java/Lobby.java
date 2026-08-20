@@ -29,7 +29,11 @@ public class Lobby {
             String command = scanner.nextLine();
             System.out.println(divider);
 
-
+            if (command.equals("bye")) {
+                System.out.println(" Sayonara. Until next time!");
+                System.out.println(divider);
+                break;
+            }
 
             System.out.println(" " + command);
             System.out.println(divider);
