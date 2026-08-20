@@ -88,15 +88,14 @@ public class Lobby {
                 } catch (LobbyException e) {
                     System.out.println(" " + e.getMessage());
                 }
-            } else if (command.startsWith("event ")) {
-                String[] eventParts = command.substring("event ".length()).split(" /from | /to ", 3);
-                if (eventParts.length < 3) {
-                    System.out.println(" Please use event <description> /from <start> /to <end>.");
-                } else {
-                    Event event = new Event(eventParts[0].trim(), eventParts[1].trim(), eventParts[2].trim());
+            } else if (command.startsWith("event")) {
+                try {
+                    Event event = createEvent(command);
                     tasks[taskCount] = event;
                     taskCount++;
                     printTaskAdded(event, taskCount);
+                } catch (LobbyException e) {
+                    System.out.println(" " + e.getMessage());
                 }
             } else {
                 System.out.println(" Please use todo, deadline, event, list, mark, unmark, or bye.");
@@ -156,6 +155,40 @@ public class Lobby {
             throw new LobbyException("A deadline needs a time after /by.");
         }
         return new Deadline(description, by);
+    }
+
+    /**
+     * Creates an event from a user command after validating all required parts.
+     *
+     * @param command the complete command entered by the user
+     * @return the new event
+     * @throws LobbyException if the command lacks a description, {@code /from}, start time, {@code /to}, or end time
+     */
+    private static Event createEvent(String command) throws LobbyException {
+        String eventDetails = command.substring("event".length());
+        String[] fromParts = eventDetails.split("\\s+/from\\s*", 2);
+        if (fromParts.length < 2) {
+            throw new LobbyException("An event needs a /from start time. Try: event <description> /from <start> /to <end>.");
+        }
+
+        String[] toParts = fromParts[1].split("\\s+/to\\s*", -1);
+        if (toParts.length < 2) {
+            throw new LobbyException("An event needs a /to end time. Try: event <description> /from <start> /to <end>.");
+        }
+
+        String description = fromParts[0].trim();
+        String from = toParts[0].trim();
+        String to = toParts[1].trim();
+        if (description.isEmpty()) {
+            throw new LobbyException("An event needs a description before /from.");
+        }
+        if (from.isEmpty()) {
+            throw new LobbyException("An event needs a start time after /from.");
+        }
+        if (to.isEmpty()) {
+            throw new LobbyException("An event needs an end time after /to.");
+        }
+        return new Event(description, from, to);
     }
 
 }
