@@ -5,7 +5,7 @@ import java.util.Scanner;
  */
 public class Lobby {
     /**
-     * Displays a greeting, echoes each user command, and ends when the user enters {@code bye}.
+     * Displays a greeting, stores tasks, lists them on request, and ends when the user enters {@code bye}.
      *
      * @param args command-line arguments (not used)
      */
@@ -25,17 +25,22 @@ public class Lobby {
         System.out.println(divider);
 
         Scanner scanner = new Scanner(System.in);
+        String[] tasks = new String[100];
+        int taskCount = 0;
         while (true) {
             String command = scanner.nextLine();
             System.out.println(divider);
 
             if (command.equals("bye")) {
-                System.out.println(" Sayonara. Until next time!");
+                System.out.println(" Bye. Hope to see you again soon!");
                 System.out.println(divider);
                 break;
+            }  else {
+                tasks[taskCount] = command;
+                taskCount++;
+                System.out.println(" added: " + command);
             }
 
-            System.out.println(" " + command);
             System.out.println(divider);
         }
     }
