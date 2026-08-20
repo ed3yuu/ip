@@ -102,3 +102,46 @@ This file is the source of truth for console UI test cases. Add one section per 
 
 - Comparison rule: exact, after normalizing Windows line endings to `\n`.
 - Setup: Compile all files in `src/main/java` to the `out` folder with Java 25 before running the command.
+
+### UI-003 Reject malformed deadline commands
+
+- Aim: Verify that deadline commands report specific missing parts and do not add an incomplete task.
+- Command: `java -cp out Lobby`
+- Inputs, in order:
+  1. `deadline`
+  2. `deadline /by Monday`
+  3. `deadline submit report /by`
+  4. `list`
+  5. `bye`
+- Expected output:
+
+  ```text
+  ____________________________________________________________
+   _           _     _
+  | |    ___  | |__ | |__  _   _
+  | |   / _ \ | '_ \| '_ \| | | |
+  | |__| (_) | |_) | |_) | |_| |
+  |_____|\___/|_.__/|_.__/ \__, |
+                           |___/
+  Hello! I'm Lobby.
+  What can I do for you?
+  ____________________________________________________________
+  ____________________________________________________________
+   A deadline needs a /by time. Try: deadline <description> /by <when>.
+  ____________________________________________________________
+  ____________________________________________________________
+   A deadline needs a description before /by.
+  ____________________________________________________________
+  ____________________________________________________________
+   A deadline needs a time after /by.
+  ____________________________________________________________
+  ____________________________________________________________
+   Here are the tasks in your list:
+  ____________________________________________________________
+  ____________________________________________________________
+   Bye. Hope to see you again soon!
+  ____________________________________________________________
+  ```
+
+- Comparison rule: exact, after normalizing Windows line endings to `\n`.
+- Setup: Compile all files in `src/main/java` to the `out` folder with Java 25 before running the command.
