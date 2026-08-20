@@ -79,15 +79,14 @@ public class Lobby {
                 } catch (LobbyException e) {
                     System.out.println(" " + e.getMessage());
                 }
-            } else if (command.startsWith("deadline ")) {
-                String[] deadlineParts = command.substring("deadline ".length()).split(" /by ", 2);
-                if (deadlineParts.length < 2) {
-                    System.out.println(" Please use deadline <description> /by <when>.");
-                } else {
-                    Deadline deadline = new Deadline(deadlineParts[0].trim(), deadlineParts[1].trim());
+            } else if (command.startsWith("deadline")) {
+                try {
+                    Deadline deadline = createDeadline(command);
                     tasks[taskCount] = deadline;
                     taskCount++;
                     printTaskAdded(deadline, taskCount);
+                } catch (LobbyException e) {
+                    System.out.println(" " + e.getMessage());
                 }
             } else if (command.startsWith("event ")) {
                 String[] eventParts = command.substring("event ".length()).split(" /from | /to ", 3);
@@ -133,6 +132,30 @@ public class Lobby {
             throw new LobbyException("A to-do needs a description. Try: todo <description>.");
         }
         return new Todo(description);
+    }
+
+    /**
+     * Creates a deadline from a user command after validating all required parts.
+     *
+     * @param command the complete command entered by the user
+     * @return the new deadline
+     * @throws LobbyException if the command lacks a description, {@code /by}, or deadline time
+     */
+    private static Deadline createDeadline(String command) throws LobbyException {
+        String[] deadlineParts = command.substring("deadline".length()).split("\\s+/by\\s*", -1);
+        if (deadlineParts.length < 2) {
+            throw new LobbyException("A deadline needs a /by time. Try: deadline <description> /by <when>.");
+        }
+
+        String description = deadlineParts[0].trim();
+        String by = deadlineParts[1].trim();
+        if (description.isEmpty()) {
+            throw new LobbyException("A deadline needs a description before /by.");
+        }
+        if (by.isEmpty()) {
+            throw new LobbyException("A deadline needs a time after /by.");
+        }
+        return new Deadline(description, by);
     }
 
 }
