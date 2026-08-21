@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -25,8 +27,7 @@ public class Lobby {
         System.out.println(divider);
 
         Scanner scanner = new Scanner(System.in);
-        Task[] tasks = new Task[100];
-        int taskCount = 0;
+        List<Task> tasks = new ArrayList<>();
         while (true) {
             String command = scanner.nextLine();
             System.out.println(divider);
@@ -37,20 +38,20 @@ public class Lobby {
                 break;
             } else if (command.equals("list")) {
                 System.out.println(" Here are the tasks in your list:");
-                for (int i = 0; i < taskCount; i++) {
-                    System.out.println(" " + (i + 1) + "." + tasks[i]);
+                for (int i = 0; i < tasks.size(); i++) {
+                    System.out.println(" " + (i + 1) + "." + tasks.get(i));
                 }
             } else if (command.startsWith("mark ")) {
                 String taskNumberText = command.substring("mark ".length()).trim();
                 try {
                     int taskNumber = Integer.parseInt(taskNumberText);
-                    if (taskNumber < 1 || taskNumber > taskCount) {
+                    if (taskNumber < 1 || taskNumber > tasks.size()) {
                         System.out.println(" Please enter the number of a task in the list.");
                     } else {
                         int taskIndex = taskNumber - 1;
-                        tasks[taskIndex].markAsDone();
+                        tasks.get(taskIndex).markAsDone();
                         System.out.println(" Nice! I've marked this task as done:");
-                        System.out.println("   " + tasks[taskIndex]);
+                        System.out.println("   " + tasks.get(taskIndex));
                     }
                 } catch (NumberFormatException e) {
                     System.out.println(" Please use mark followed by a task number.");
@@ -59,13 +60,13 @@ public class Lobby {
                 String taskNumberText = command.substring("unmark ".length()).trim();
                 try {
                     int taskNumber = Integer.parseInt(taskNumberText);
-                    if (taskNumber < 1 || taskNumber > taskCount) {
+                    if (taskNumber < 1 || taskNumber > tasks.size()) {
                         System.out.println(" Please enter the number of a task in the list.");
                     } else {
                         int taskIndex = taskNumber - 1;
-                        tasks[taskIndex].markAsNotDone();
+                        tasks.get(taskIndex).markAsNotDone();
                         System.out.println(" OK, I've marked this task as not done yet:");
-                        System.out.println("   " + tasks[taskIndex]);
+                        System.out.println("   " + tasks.get(taskIndex));
                     }
                 } catch (NumberFormatException e) {
                     System.out.println(" Please use unmark followed by a task number.");
@@ -73,32 +74,46 @@ public class Lobby {
             } else if (command.startsWith("todo")) {
                 try {
                     Todo todo = createTodo(command);
-                    tasks[taskCount] = todo;
-                    taskCount++;
-                    printTaskAdded(todo, taskCount);
+                    tasks.add(todo);
+                    printTaskAdded(todo, tasks.size());
                 } catch (LobbyException e) {
                     System.out.println(" " + e.getMessage());
                 }
             } else if (command.startsWith("deadline")) {
                 try {
                     Deadline deadline = createDeadline(command);
-                    tasks[taskCount] = deadline;
-                    taskCount++;
-                    printTaskAdded(deadline, taskCount);
+                    tasks.add(deadline);
+                    printTaskAdded(deadline, tasks.size());
                 } catch (LobbyException e) {
                     System.out.println(" " + e.getMessage());
                 }
             } else if (command.startsWith("event")) {
                 try {
                     Event event = createEvent(command);
-                    tasks[taskCount] = event;
-                    taskCount++;
-                    printTaskAdded(event, taskCount);
+                    tasks.add(event);
+                    printTaskAdded(event, tasks.size());
                 } catch (LobbyException e) {
                     System.out.println(" " + e.getMessage());
                 }
+            } else if (command.startsWith("delete ")) {
+                String taskNumberText = command.substring("delete ".length()).trim();
+                try {
+                    int taskNumber = Integer.parseInt(taskNumberText);
+                    if (taskNumber < 1 || taskNumber > tasks.size()) {
+                        System.out.println(" Please enter the number of a task in the list.");
+                    } else {
+                        int taskIndex = taskNumber - 1;
+                        Task removedTask = tasks.remove(taskIndex);
+                        System.out.println(" Noted. I've removed this task:");
+                        System.out.println("   " + removedTask);
+                        String taskWord = tasks.size() == 1 ? "task" : "tasks";
+                        System.out.println(" Now you have " + tasks.size() + " " + taskWord + " in the list.");
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println(" Please use delete followed by a task number.");
+                }
             } else {
-                System.out.println(" Please use todo, deadline, event, list, mark, unmark, or bye.");
+                System.out.println(" Please use todo, deadline, event, list, mark, unmark, delete, or bye.");
             }
 
             System.out.println(divider);
