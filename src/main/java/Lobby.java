@@ -6,6 +6,39 @@ import java.util.Scanner;
  * Starts the Lobby chatbot application.
  */
 public class Lobby {
+
+    /**
+     * Represents the set of commands Lobby understands.
+     */
+    private enum Command {
+        BYE,
+        LIST,
+        MARK,
+        UNMARK,
+        TODO,
+        DEADLINE,
+        EVENT,
+        DELETE,
+        UNKNOWN
+    }
+
+    /**
+     * Determines which {@link Command} a user command line represents.
+     * The comparison only looks at the first word, so any arguments
+     * (e.g. a task number after {@code mark}) do not affect matching.
+     *
+     * @param command the complete command entered by the user
+     * @return the matching {@link Command}, or {@code Command.UNKNOWN} if none match
+     */
+    private static Command parseCommand(String command) {
+        String commandWord = command.split("\\s+", 2)[0];
+        try {
+            return Command.valueOf(commandWord.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return Command.UNKNOWN;
+        }
+    }
+
     /**
      * Displays a greeting, stores tasks, lists them on request, and ends when the user enters {@code bye}.
      *
@@ -32,88 +65,102 @@ public class Lobby {
             String command = scanner.nextLine();
             System.out.println(divider);
 
-            if (command.equals("bye")) {
-                System.out.println(" Bye. Hope to see you again soon!");
-                System.out.println(divider);
-                break;
-            } else if (command.equals("list")) {
-                System.out.println(" Here are the tasks in your list:");
-                for (int i = 0; i < tasks.size(); i++) {
-                    System.out.println(" " + (i + 1) + "." + tasks.get(i));
-                }
-            } else if (command.startsWith("mark ")) {
-                String taskNumberText = command.substring("mark ".length()).trim();
-                try {
-                    int taskNumber = Integer.parseInt(taskNumberText);
-                    if (taskNumber < 1 || taskNumber > tasks.size()) {
-                        System.out.println(" Please enter the number of a task in the list.");
-                    } else {
-                        int taskIndex = taskNumber - 1;
-                        tasks.get(taskIndex).markAsDone();
-                        System.out.println(" Nice! I've marked this task as done:");
-                        System.out.println("   " + tasks.get(taskIndex));
+            Command commandType = parseCommand(command);
+            switch (commandType) {
+                case BYE:
+                    System.out.println(" Bye. Hope to see you again soon!");
+                    System.out.println(divider);
+                    return;
+                case LIST:
+                    System.out.println(" Here are the tasks in your list:");
+                    for (int i = 0; i < tasks.size(); i++) {
+                        System.out.println(" " + (i + 1) + "." + tasks.get(i));
                     }
-                } catch (NumberFormatException e) {
-                    System.out.println(" Please use mark followed by a task number.");
-                }
-            } else if (command.startsWith("unmark ")) {
-                String taskNumberText = command.substring("unmark ".length()).trim();
-                try {
-                    int taskNumber = Integer.parseInt(taskNumberText);
-                    if (taskNumber < 1 || taskNumber > tasks.size()) {
-                        System.out.println(" Please enter the number of a task in the list.");
-                    } else {
-                        int taskIndex = taskNumber - 1;
-                        tasks.get(taskIndex).markAsNotDone();
-                        System.out.println(" OK, I've marked this task as not done yet:");
-                        System.out.println("   " + tasks.get(taskIndex));
+                    break;
+                case MARK: {
+                    String taskNumberText = command.substring("mark".length()).trim();
+                    try {
+                        int taskNumber = Integer.parseInt(taskNumberText);
+                        if (taskNumber < 1 || taskNumber > tasks.size()) {
+                            System.out.println(" Please enter the number of a task in the list.");
+                        } else {
+                            int taskIndex = taskNumber - 1;
+                            tasks.get(taskIndex).markAsDone();
+                            System.out.println(" Nice! I've marked this task as done:");
+                            System.out.println("   " + tasks.get(taskIndex));
+                        }
+                    } catch (NumberFormatException e) {
+                        System.out.println(" Please use mark followed by a task number.");
                     }
-                } catch (NumberFormatException e) {
-                    System.out.println(" Please use unmark followed by a task number.");
+                    break;
                 }
-            } else if (command.startsWith("todo")) {
-                try {
-                    Todo todo = createTodo(command);
-                    tasks.add(todo);
-                    printTaskAdded(todo, tasks.size());
-                } catch (LobbyException e) {
-                    System.out.println(" " + e.getMessage());
-                }
-            } else if (command.startsWith("deadline")) {
-                try {
-                    Deadline deadline = createDeadline(command);
-                    tasks.add(deadline);
-                    printTaskAdded(deadline, tasks.size());
-                } catch (LobbyException e) {
-                    System.out.println(" " + e.getMessage());
-                }
-            } else if (command.startsWith("event")) {
-                try {
-                    Event event = createEvent(command);
-                    tasks.add(event);
-                    printTaskAdded(event, tasks.size());
-                } catch (LobbyException e) {
-                    System.out.println(" " + e.getMessage());
-                }
-            } else if (command.startsWith("delete ")) {
-                String taskNumberText = command.substring("delete ".length()).trim();
-                try {
-                    int taskNumber = Integer.parseInt(taskNumberText);
-                    if (taskNumber < 1 || taskNumber > tasks.size()) {
-                        System.out.println(" Please enter the number of a task in the list.");
-                    } else {
-                        int taskIndex = taskNumber - 1;
-                        Task removedTask = tasks.remove(taskIndex);
-                        System.out.println(" Noted. I've removed this task:");
-                        System.out.println("   " + removedTask);
-                        String taskWord = tasks.size() == 1 ? "task" : "tasks";
-                        System.out.println(" Now you have " + tasks.size() + " " + taskWord + " in the list.");
+                case UNMARK: {
+                    String taskNumberText = command.substring("unmark".length()).trim();
+                    try {
+                        int taskNumber = Integer.parseInt(taskNumberText);
+                        if (taskNumber < 1 || taskNumber > tasks.size()) {
+                            System.out.println(" Please enter the number of a task in the list.");
+                        } else {
+                            int taskIndex = taskNumber - 1;
+                            tasks.get(taskIndex).markAsNotDone();
+                            System.out.println(" OK, I've marked this task as not done yet:");
+                            System.out.println("   " + tasks.get(taskIndex));
+                        }
+                    } catch (NumberFormatException e) {
+                        System.out.println(" Please use unmark followed by a task number.");
                     }
-                } catch (NumberFormatException e) {
-                    System.out.println(" Please use delete followed by a task number.");
+                    break;
                 }
-            } else {
-                System.out.println(" Please use todo, deadline, event, list, mark, unmark, delete, or bye.");
+                case TODO:
+                    try {
+                        Todo todo = createTodo(command);
+                        tasks.add(todo);
+                        printTaskAdded(todo, tasks.size());
+                    } catch (LobbyException e) {
+                        System.out.println(" " + e.getMessage());
+                    }
+                    break;
+                case DEADLINE:
+                    try {
+                        Deadline deadline = createDeadline(command);
+                        tasks.add(deadline);
+                        printTaskAdded(deadline, tasks.size());
+                    } catch (LobbyException e) {
+                        System.out.println(" " + e.getMessage());
+                    }
+                    break;
+                case EVENT:
+                    try {
+                        Event event = createEvent(command);
+                        tasks.add(event);
+                        printTaskAdded(event, tasks.size());
+                    } catch (LobbyException e) {
+                        System.out.println(" " + e.getMessage());
+                    }
+                    break;
+                case DELETE: {
+                    String taskNumberText = command.substring("delete".length()).trim();
+                    try {
+                        int taskNumber = Integer.parseInt(taskNumberText);
+                        if (taskNumber < 1 || taskNumber > tasks.size()) {
+                            System.out.println(" Please enter the number of a task in the list.");
+                        } else {
+                            int taskIndex = taskNumber - 1;
+                            Task removedTask = tasks.remove(taskIndex);
+                            System.out.println(" Noted. I've removed this task:");
+                            System.out.println("   " + removedTask);
+                            String taskWord = tasks.size() == 1 ? "task" : "tasks";
+                            System.out.println(" Now you have " + tasks.size() + " " + taskWord + " in the list.");
+                        }
+                    } catch (NumberFormatException e) {
+                        System.out.println(" Please use delete followed by a task number.");
+                    }
+                    break;
+                }
+                case UNKNOWN:
+                default:
+                    System.out.println(" Please use todo, deadline, event, list, mark, unmark, delete, or bye.");
+                    break;
             }
 
             System.out.println(divider);
