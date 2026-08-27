@@ -37,6 +37,7 @@ test {
 }
 
 application {
+    // Shadow uses this class to write the Main-Class entry in the JAR manifest.
     mainClass = 'lobby.Lobby'
 }
 
@@ -48,7 +49,8 @@ jar {
 }
 
 shadowJar {
-    archiveFileName = 'duke.jar'
+    // Use a stable, user-friendly name instead of Gradle's default versioned name.
+    archiveFileName = 'Lobby.jar'
 }
 
 run {
