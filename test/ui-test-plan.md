@@ -8,7 +8,7 @@ This file is the source of truth for console UI test cases. Add one section per 
 - Working directory: repository root
 - Default comparison rule: exact output, including whitespace and line breaks
 - Line-ending rule: platform line-ending differences may be normalized to `\n`
-- Before each case: delete `data/lobby.txt` if it exists so each case starts without saved data.
+- Before each case: delete `data/lobby.txt` if it exists so each case starts without saved data, unless the case specifies saved-file setup.
 
 ## Test cases
 
@@ -170,6 +170,48 @@ This file is the source of truth for console UI test cases. Add one section per 
   ```text
   T | 0 | first task
   ```
+
+### UI-006 Load saved tasks on startup
+
+- Aim: Verify that all task types and their completion states are restored from the save file when Lobby starts.
+- Command: `java -cp out Lobby`
+- Inputs, in order:
+  1. `list`
+  2. `bye`
+- Expected output:
+
+  ```text
+  ____________________________________________________________
+   _           _     _
+  | |    ___  | |__ | |__  _   _
+  | |   / _ \ | '_ \| '_ \| | | |
+  | |__| (_) | |_) | |_) | |_| |
+  |_____\___/|_.__/|_.__/ \__, |
+                           |___/
+  Hello! I'm Lobby.
+  What can I do for you?
+  ____________________________________________________________
+  ____________________________________________________________
+   Here are the tasks in your list:
+   1.[T][X] read book
+   2.[D][ ] return book (by: June 6th)
+   3.[E][X] project meeting (from: Aug 6th 2pm to: 4pm)
+  ____________________________________________________________
+  ____________________________________________________________
+   Bye. Hope to see you again soon!
+  ____________________________________________________________
+  ```
+
+- Comparison rule: exact, after normalizing Windows line endings to `\n`.
+- Setup:
+  1. Compile all files in `src/main/java` to the `out` folder with Java 25.
+  2. Create `data/lobby.txt` with this exact UTF-8 content:
+
+     ```text
+     T | 1 | read book
+     D | 0 | return book | June 6th
+     E | 1 | project meeting | Aug 6th 2pm | 4pm
+     ```
 
 ### UI-004 Reject malformed event commands
 

@@ -65,7 +65,7 @@ public class Lobby {
         System.out.println(divider);
 
         Scanner scanner = new Scanner(System.in);
-        List<Task> tasks = new ArrayList<>();
+        List<Task> tasks = loadTasks();
         while (true) {
             String command = scanner.nextLine();
             System.out.println(divider);
@@ -191,6 +191,44 @@ public class Lobby {
                 .map(Task::toDataString)
                 .toList();
         Files.write(SAVE_FILE, taskLines, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Loads tasks from the save file, or starts with an empty list when no save file exists yet.
+     *
+     * @return the tasks stored during the previous run
+     * @throws IOException if the save file cannot be read
+     */
+    private static List<Task> loadTasks() throws IOException {
+        List<Task> tasks = new ArrayList<>();
+        if (!Files.exists(SAVE_FILE)) {
+            return tasks;
+        }
+
+        for (String taskLine : Files.readAllLines(SAVE_FILE, StandardCharsets.UTF_8)) {
+            String[] taskFields = taskLine.split("\\s*\\|\\s*", -1);
+            Task task = createTaskFromData(taskFields);
+            if (taskFields[1].equals("1")) {
+                task.markAsDone();
+            }
+            tasks.add(task);
+        }
+        return tasks;
+    }
+
+    /**
+     * Reconstructs one task from the fields stored on a line of the save file.
+     *
+     * @param taskFields the task type, completion flag, and task-specific fields
+     * @return the reconstructed task
+     */
+    private static Task createTaskFromData(String[] taskFields) {
+        return switch (taskFields[0]) {
+            case "T" -> new Todo(taskFields[2]);
+            case "D" -> new Deadline(taskFields[2], taskFields[3]);
+            case "E" -> new Event(taskFields[2], taskFields[3], taskFields[4]);
+            default -> throw new IllegalArgumentException("Unknown task type: " + taskFields[0]);
+        };
     }
 
     /**
