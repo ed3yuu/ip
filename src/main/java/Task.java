@@ -48,6 +48,25 @@ public class Task {
     }
 
     /**
+     * Formats the fields shared by every task for storage.
+     *
+     * @return the completion flag and description separated by {@code |}
+     */
+    protected String toDataFields() {
+        return (isDone ? "1" : "0") + " | " + description;
+    }
+
+    /**
+     * Formats this task as one line in the save file.
+     * Subclasses override this method to include their task type and details.
+     *
+     * @return the serialized task
+     */
+    public String toDataString() {
+        return toDataFields();
+    }
+
+    /**
      * Formats the shared completion status and description of a task.
      * Subclasses add their task-type marker and any date/time details.
      *

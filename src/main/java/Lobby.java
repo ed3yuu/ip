@@ -1,3 +1,7 @@
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -6,6 +10,7 @@ import java.util.Scanner;
  * Starts the Lobby chatbot application.
  */
 public class Lobby {
+    private static final Path SAVE_FILE = Path.of("data", "lobby.txt");
 
     /**
      * Represents the set of commands Lobby understands.
@@ -44,7 +49,7 @@ public class Lobby {
      *
      * @param args command-line arguments (not used)
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         String banner = " _           _     _\n"
                 + "| |    ___  | |__ | |__  _   _\n"
                 + "| |   / _ \\ | '_ \\| '_ \\| | | |\n"
@@ -86,6 +91,7 @@ public class Lobby {
                         } else {
                             int taskIndex = taskNumber - 1;
                             tasks.get(taskIndex).markAsDone();
+                            saveTasks(tasks);
                             System.out.println(" Nice! I've marked this task as done:");
                             System.out.println("   " + tasks.get(taskIndex));
                         }
@@ -103,6 +109,7 @@ public class Lobby {
                         } else {
                             int taskIndex = taskNumber - 1;
                             tasks.get(taskIndex).markAsNotDone();
+                            saveTasks(tasks);
                             System.out.println(" OK, I've marked this task as not done yet:");
                             System.out.println("   " + tasks.get(taskIndex));
                         }
@@ -115,6 +122,7 @@ public class Lobby {
                     try {
                         Todo todo = createTodo(command);
                         tasks.add(todo);
+                        saveTasks(tasks);
                         printTaskAdded(todo, tasks.size());
                     } catch (LobbyException e) {
                         System.out.println(" " + e.getMessage());
@@ -124,6 +132,7 @@ public class Lobby {
                     try {
                         Deadline deadline = createDeadline(command);
                         tasks.add(deadline);
+                        saveTasks(tasks);
                         printTaskAdded(deadline, tasks.size());
                     } catch (LobbyException e) {
                         System.out.println(" " + e.getMessage());
@@ -133,6 +142,7 @@ public class Lobby {
                     try {
                         Event event = createEvent(command);
                         tasks.add(event);
+                        saveTasks(tasks);
                         printTaskAdded(event, tasks.size());
                     } catch (LobbyException e) {
                         System.out.println(" " + e.getMessage());
@@ -147,6 +157,7 @@ public class Lobby {
                         } else {
                             int taskIndex = taskNumber - 1;
                             Task removedTask = tasks.remove(taskIndex);
+                            saveTasks(tasks);
                             System.out.println(" Noted. I've removed this task:");
                             System.out.println("   " + removedTask);
                             String taskWord = tasks.size() == 1 ? "task" : "tasks";
@@ -165,6 +176,21 @@ public class Lobby {
 
             System.out.println(divider);
         }
+    }
+
+    /**
+     * Rewrites the save file so that it matches the current task list.
+     * The parent directory is created automatically on the first save.
+     *
+     * @param tasks the complete current task list
+     * @throws IOException if the directory or file cannot be written
+     */
+    private static void saveTasks(List<Task> tasks) throws IOException {
+        Files.createDirectories(SAVE_FILE.getParent());
+        List<String> taskLines = tasks.stream()
+                .map(Task::toDataString)
+                .toList();
+        Files.write(SAVE_FILE, taskLines, StandardCharsets.UTF_8);
     }
 
     /**

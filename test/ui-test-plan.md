@@ -8,6 +8,7 @@ This file is the source of truth for console UI test cases. Add one section per 
 - Working directory: repository root
 - Default comparison rule: exact output, including whitespace and line breaks
 - Line-ending rule: platform line-ending differences may be normalized to `\n`
+- Before each case: delete `data/lobby.txt` if it exists so each case starts without saved data.
 
 ## Test cases
 
@@ -67,6 +68,13 @@ This file is the source of truth for console UI test cases. Add one section per 
 
 - Comparison rule: exact, after normalizing Windows line endings to `\n`.
 - Setup: Compile all files in `src/main/java` to the `out` folder with Java 25 before running the command.
+- Expected saved file (`data/lobby.txt`), after normalizing line endings to `\n`:
+
+  ```text
+  T | 0 | borrow book
+  D | 1 | do homework | no idea :-p
+  E | 0 | project meeting | Mon 2pm | 4pm
+  ```
 
 ### UI-002 Reject a to-do without a description
 
@@ -84,7 +92,7 @@ This file is the source of truth for console UI test cases. Add one section per 
   | |    ___  | |__ | |__  _   _
   | |   / _ \ | '_ \| '_ \| | | |
   | |__| (_) | |_) | |_) | |_| |
-  |_____|\___/|_.__/|_.__/ \__, |
+  |_____\___/|_.__/|_.__/ \__, |
                            |___/
   Hello! I'm Lobby.
   What can I do for you?
@@ -102,6 +110,66 @@ This file is the source of truth for console UI test cases. Add one section per 
 
 - Comparison rule: exact, after normalizing Windows line endings to `\n`.
 - Setup: Compile all files in `src/main/java` to the `out` folder with Java 25 before running the command.
+
+### UI-005 Save the result of every task-list mutation
+
+- Aim: Verify that successful add, mark, unmark, and delete commands leave the save file matching the final task list.
+- Command: `java -cp out Lobby`
+- Inputs, in order:
+  1. `todo first task`
+  2. `mark 1`
+  3. `unmark 1`
+  4. `todo second task`
+  5. `delete 2`
+  6. `bye`
+- Expected output:
+
+  ```text
+  ____________________________________________________________
+   _           _     _
+  | |    ___  | |__ | |__  _   _
+  | |   / _ \ | '_ \| '_ \| | | |
+  | |__| (_) | |_) | |_) | |_| |
+  |_____\___/|_.__/|_.__/ \__, |
+                           |___/
+  Hello! I'm Lobby.
+  What can I do for you?
+  ____________________________________________________________
+  ____________________________________________________________
+   Got it. I've added this task:
+     [T][ ] first task
+   Now you have 1 task in the list.
+  ____________________________________________________________
+  ____________________________________________________________
+   Nice! I've marked this task as done:
+     [T][X] first task
+  ____________________________________________________________
+  ____________________________________________________________
+   OK, I've marked this task as not done yet:
+     [T][ ] first task
+  ____________________________________________________________
+  ____________________________________________________________
+   Got it. I've added this task:
+     [T][ ] second task
+   Now you have 2 tasks in the list.
+  ____________________________________________________________
+  ____________________________________________________________
+   Noted. I've removed this task:
+     [T][ ] second task
+   Now you have 1 task in the list.
+  ____________________________________________________________
+  ____________________________________________________________
+   Bye. Hope to see you again soon!
+  ____________________________________________________________
+  ```
+
+- Comparison rule: exact, after normalizing Windows line endings to `\n`.
+- Setup: Compile all files in `src/main/java` to the `out` folder with Java 25 before running the command.
+- Expected saved file (`data/lobby.txt`), after normalizing line endings to `\n`:
+
+  ```text
+  T | 0 | first task
+  ```
 
 ### UI-004 Reject malformed event commands
 
@@ -122,7 +190,7 @@ This file is the source of truth for console UI test cases. Add one section per 
   | |    ___  | |__ | |__  _   _
   | |   / _ \ | '_ \| '_ \| | | |
   | |__| (_) | |_) | |_) | |_| |
-  |_____|\___/|_.__/|_.__/ \__, |
+  |_____\___/|_.__/|_.__/ \__, |
                            |___/
   Hello! I'm Lobby.
   What can I do for you?
@@ -134,7 +202,7 @@ This file is the source of truth for console UI test cases. Add one section per 
    An event needs a description before /from.
   ____________________________________________________________
   ____________________________________________________________
-   An event needs a start time after /from.
+   An event needs a /to end time. Try: event <description> /from <start> /to <end>.
   ____________________________________________________________
   ____________________________________________________________
    An event needs an end time after /to.
@@ -168,7 +236,7 @@ This file is the source of truth for console UI test cases. Add one section per 
   | |    ___  | |__ | |__  _   _
   | |   / _ \ | '_ \| '_ \| | | |
   | |__| (_) | |_) | |_) | |_| |
-  |_____|\___/|_.__/|_.__/ \__, |
+  |_____\___/|_.__/|_.__/ \__, |
                            |___/
   Hello! I'm Lobby.
   What can I do for you?
