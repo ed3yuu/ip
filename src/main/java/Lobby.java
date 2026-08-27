@@ -4,6 +4,8 @@ import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -378,7 +380,7 @@ public class Lobby {
 
         Task task = switch (taskFields[0]) {
             case "T" -> new Todo(taskFields[2]);
-            case "D" -> new Deadline(taskFields[2], taskFields[3]);
+            case "D" -> new Deadline(taskFields[2], LocalDate.parse(taskFields[3]));
             case "E" -> new Event(taskFields[2], taskFields[3], taskFields[4]);
             default -> throw new IllegalArgumentException("Unknown task type");
         };
@@ -431,14 +433,18 @@ public class Lobby {
         }
 
         String description = deadlineDetails.substring(0, byIndex).trim();
-        String by = deadlineDetails.substring(byIndex + "/by".length()).trim();
+        String byText = deadlineDetails.substring(byIndex + "/by".length()).trim();
         if (description.isEmpty()) {
             throw new LobbyException("A deadline needs a description before /by.");
         }
-        if (by.isEmpty()) {
+        if (byText.isEmpty()) {
             throw new LobbyException("A deadline needs a time after /by.");
         }
-        return new Deadline(description, by);
+        try {
+            return new Deadline(description, LocalDate.parse(byText));
+        } catch (DateTimeParseException e) {
+            throw new LobbyException("Please enter the deadline date as yyyy-MM-dd, for example 2019-10-15.");
+        }
     }
 
     /**
