@@ -1,3 +1,5 @@
+package lobby.task;
+
 /**
  * Represents a task that has user-supplied start and end date/time strings.
  */

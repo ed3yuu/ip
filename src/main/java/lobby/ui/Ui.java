@@ -1,4 +1,9 @@
+package lobby.ui;
+
 import java.util.Scanner;
+
+import lobby.task.Task;
+import lobby.task.TaskList;
 
 /**
  * Handles all text-based interactions between Lobby and the user.

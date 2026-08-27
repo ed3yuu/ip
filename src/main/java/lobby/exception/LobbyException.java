@@ -1,3 +1,5 @@
+package lobby.exception;
+
 /**
  * Represents an error caused by an invalid command entered into Lobby.
  */

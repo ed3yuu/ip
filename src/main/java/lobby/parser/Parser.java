@@ -1,6 +1,13 @@
+package lobby.parser;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.Locale;
+
+import lobby.exception.LobbyException;
+import lobby.task.Deadline;
+import lobby.task.Event;
+import lobby.task.Todo;
 
 /**
  * Interprets user command text and validates command arguments.

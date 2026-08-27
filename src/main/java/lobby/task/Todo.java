@@ -1,3 +1,5 @@
+package lobby.task;
+
 /**
  * Represents a task without a date or time.
  */

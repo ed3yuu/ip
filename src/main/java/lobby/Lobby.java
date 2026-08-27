@@ -1,4 +1,16 @@
+package lobby;
+
 import java.io.IOException;
+
+import lobby.exception.LobbyException;
+import lobby.parser.Parser;
+import lobby.storage.Storage;
+import lobby.task.Deadline;
+import lobby.task.Event;
+import lobby.task.Task;
+import lobby.task.TaskList;
+import lobby.task.Todo;
+import lobby.ui.Ui;
 
 /**
  * Starts the Lobby chatbot application.
