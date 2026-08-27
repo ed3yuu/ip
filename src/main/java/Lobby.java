@@ -4,19 +4,31 @@ import java.io.IOException;
  * Starts the Lobby chatbot application.
  */
 public class Lobby {
+    private final Ui ui;
+    private final Storage storage;
+    private final Parser parser;
+    private final TaskList tasks;
+    private final Storage.LoadResult loadResult;
+
     /**
-     * Displays a greeting, stores tasks, lists them on request, and ends when the user enters {@code bye}.
+     * Creates a Lobby application backed by the given task file.
      *
-     * @param args command-line arguments (not used)
+     * @param filePath location used to load and save tasks
      */
-    public static void main(String[] args) {
-        Ui ui = new Ui();
-        Storage storage = new Storage("data/lobby.txt");
-        Parser parser = new Parser();
+    public Lobby(String filePath) {
+        this.ui = new Ui();
+        this.storage = new Storage(filePath);
+        this.parser = new Parser();
+        this.loadResult = storage.load();
+        this.tasks = new TaskList(loadResult.tasks());
+    }
+
+    /**
+     * Runs the command loop until the user exits or the input stream ends.
+     */
+    public void run() {
         ui.showWelcome();
-        Storage.LoadResult loadResult = storage.load();
-        TaskList tasks = new TaskList(loadResult.tasks());
-        showLoadWarning(loadResult, ui);
+        showLoadWarning();
         String command;
         while ((command = ui.readCommand()) != null) {
             ui.startResponse();
@@ -38,7 +50,7 @@ public class Lobby {
                             Task task = tasks.get(taskNumber);
                             boolean wasDone = task.isDone();
                             tasks.mark(taskNumber);
-                            if (!trySaveTasks(tasks, storage, ui)) {
+                            if (!trySaveTasks()) {
                                 if (!wasDone) {
                                     tasks.unmark(taskNumber);
                                 }
@@ -60,7 +72,7 @@ public class Lobby {
                             Task task = tasks.get(taskNumber);
                             boolean wasDone = task.isDone();
                             tasks.unmark(taskNumber);
-                            if (!trySaveTasks(tasks, storage, ui)) {
+                            if (!trySaveTasks()) {
                                 if (wasDone) {
                                     tasks.mark(taskNumber);
                                 }
@@ -77,7 +89,7 @@ public class Lobby {
                     try {
                         Todo todo = parser.parseTodo(command);
                         tasks.add(todo);
-                        if (!trySaveTasks(tasks, storage, ui)) {
+                        if (!trySaveTasks()) {
                             tasks.delete(tasks.size());
                             break;
                         }
@@ -90,7 +102,7 @@ public class Lobby {
                     try {
                         Deadline deadline = parser.parseDeadline(command);
                         tasks.add(deadline);
-                        if (!trySaveTasks(tasks, storage, ui)) {
+                        if (!trySaveTasks()) {
                             tasks.delete(tasks.size());
                             break;
                         }
@@ -103,7 +115,7 @@ public class Lobby {
                     try {
                         Event event = parser.parseEvent(command);
                         tasks.add(event);
-                        if (!trySaveTasks(tasks, storage, ui)) {
+                        if (!trySaveTasks()) {
                             tasks.delete(tasks.size());
                             break;
                         }
@@ -119,7 +131,7 @@ public class Lobby {
                             ui.showError("Please enter the number of a task in the list.");
                         } else {
                             Task removedTask = tasks.delete(taskNumber);
-                            if (!trySaveTasks(tasks, storage, ui)) {
+                            if (!trySaveTasks()) {
                                 tasks.add(taskNumber, removedTask);
                                 break;
                             }
@@ -143,12 +155,18 @@ public class Lobby {
     }
 
     /**
-     * Prints a warning when some or all saved tasks could not be loaded.
+     * Starts Lobby using its default task file.
      *
-     * @param loadResult the result of attempting to load the save file
-     * @param ui the console UI used to show the warning
+     * @param args command-line arguments (not used)
      */
-    private static void showLoadWarning(Storage.LoadResult loadResult, Ui ui) {
+    public static void main(String[] args) {
+        new Lobby("data/lobby.txt").run();
+    }
+
+    /**
+     * Prints a warning when some or all saved tasks could not be loaded.
+     */
+    private void showLoadWarning() {
         if (loadResult.readFailed()) {
             ui.showLoadingError();
         } else if (loadResult.skippedLines() > 0) {
@@ -159,12 +177,9 @@ public class Lobby {
     /**
      * Attempts to save a mutation and reports a recoverable error to the user.
      *
-     * @param tasks the proposed new task list
-     * @param storage storage used to persist the tasks
-     * @param ui the console UI used to report a failure
      * @return {@code true} when the save succeeded
      */
-    private static boolean trySaveTasks(TaskList tasks, Storage storage, Ui ui) {
+    private boolean trySaveTasks() {
         try {
             storage.save(tasks.asList());
             return true;
