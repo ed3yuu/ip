@@ -1,12 +1,6 @@
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.AtomicMoveNotSupportedException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -14,18 +8,6 @@ import java.util.Locale;
  * Starts the Lobby chatbot application.
  */
 public class Lobby {
-    private static final Path SAVE_FILE = Path.of("data", "lobby.txt");
-
-    /**
-     * Contains the usable tasks and any warning discovered while loading them.
-     *
-     * @param tasks tasks reconstructed successfully
-     * @param skippedLines number of malformed non-blank lines ignored
-     * @param readFailed whether the save file could not be read at all
-     */
-    private record LoadResult(List<Task> tasks, int skippedLines, boolean readFailed) {
-    }
-
     /**
      * Represents the set of commands Lobby understands.
      */
@@ -65,8 +47,9 @@ public class Lobby {
      */
     public static void main(String[] args) {
         Ui ui = new Ui();
+        Storage storage = new Storage("data/lobby.txt");
         ui.showWelcome();
-        LoadResult loadResult = loadTasks();
+        Storage.LoadResult loadResult = storage.load();
         List<Task> tasks = loadResult.tasks();
         showLoadWarning(loadResult, ui);
         String command;
@@ -92,7 +75,7 @@ public class Lobby {
                             Task task = tasks.get(taskIndex);
                             boolean wasDone = task.isDone();
                             task.markAsDone();
-                            if (!trySaveTasks(tasks, ui)) {
+                            if (!trySaveTasks(tasks, storage, ui)) {
                                 if (!wasDone) {
                                     task.markAsNotDone();
                                 }
@@ -116,7 +99,7 @@ public class Lobby {
                             Task task = tasks.get(taskIndex);
                             boolean wasDone = task.isDone();
                             task.markAsNotDone();
-                            if (!trySaveTasks(tasks, ui)) {
+                            if (!trySaveTasks(tasks, storage, ui)) {
                                 if (wasDone) {
                                     task.markAsDone();
                                 }
@@ -133,7 +116,7 @@ public class Lobby {
                     try {
                         Todo todo = createTodo(command);
                         tasks.add(todo);
-                        if (!trySaveTasks(tasks, ui)) {
+                        if (!trySaveTasks(tasks, storage, ui)) {
                             tasks.remove(tasks.size() - 1);
                             break;
                         }
@@ -146,7 +129,7 @@ public class Lobby {
                     try {
                         Deadline deadline = createDeadline(command);
                         tasks.add(deadline);
-                        if (!trySaveTasks(tasks, ui)) {
+                        if (!trySaveTasks(tasks, storage, ui)) {
                             tasks.remove(tasks.size() - 1);
                             break;
                         }
@@ -159,7 +142,7 @@ public class Lobby {
                     try {
                         Event event = createEvent(command);
                         tasks.add(event);
-                        if (!trySaveTasks(tasks, ui)) {
+                        if (!trySaveTasks(tasks, storage, ui)) {
                             tasks.remove(tasks.size() - 1);
                             break;
                         }
@@ -177,7 +160,7 @@ public class Lobby {
                         } else {
                             int taskIndex = taskNumber - 1;
                             Task removedTask = tasks.remove(taskIndex);
-                            if (!trySaveTasks(tasks, ui)) {
+                            if (!trySaveTasks(tasks, storage, ui)) {
                                 tasks.add(taskIndex, removedTask);
                                 break;
                             }
@@ -206,7 +189,7 @@ public class Lobby {
      * @param loadResult the result of attempting to load the save file
      * @param ui the console UI used to show the warning
      */
-    private static void showLoadWarning(LoadResult loadResult, Ui ui) {
+    private static void showLoadWarning(Storage.LoadResult loadResult, Ui ui) {
         if (loadResult.readFailed()) {
             ui.showLoadingError();
         } else if (loadResult.skippedLines() > 0) {
@@ -215,144 +198,21 @@ public class Lobby {
     }
 
     /**
-     * Rewrites the save file so that it matches the current task list.
-     * The parent directory is created automatically on the first save.
-     *
-     * @param tasks the complete current task list
-     * @throws IOException if the directory or file cannot be written
-     */
-    private static void saveTasks(List<Task> tasks) throws IOException {
-        Files.createDirectories(SAVE_FILE.getParent());
-        List<String> taskLines = tasks.stream()
-                .map(Task::toDataString)
-                .toList();
-        Path temporaryFile = Files.createTempFile(SAVE_FILE.getParent(), "lobby-", ".tmp");
-        try {
-            Files.write(temporaryFile, taskLines, StandardCharsets.UTF_8);
-            try {
-                Files.move(temporaryFile, SAVE_FILE,
-                        StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
-            } catch (AtomicMoveNotSupportedException e) {
-                Files.move(temporaryFile, SAVE_FILE, StandardCopyOption.REPLACE_EXISTING);
-            }
-        } finally {
-            Files.deleteIfExists(temporaryFile);
-        }
-    }
-
-    /**
      * Attempts to save a mutation and reports a recoverable error to the user.
      *
      * @param tasks the proposed new task list
+     * @param storage storage used to persist the tasks
      * @param ui the console UI used to report a failure
      * @return {@code true} when the save succeeded
      */
-    private static boolean trySaveTasks(List<Task> tasks, Ui ui) {
+    private static boolean trySaveTasks(List<Task> tasks, Storage storage, Ui ui) {
         try {
-            saveTasks(tasks);
+            storage.save(tasks);
             return true;
         } catch (IOException | SecurityException e) {
             ui.showError("I couldn't save your changes. Please check that data/lobby.txt is writable.");
             return false;
         }
-    }
-
-    /**
-     * Loads tasks from the save file, or starts with an empty list when no save file exists yet.
-     *
-     * @return the tasks stored during the previous run
-     */
-    private static LoadResult loadTasks() {
-        List<Task> tasks = new ArrayList<>();
-        try {
-            if (!Files.exists(SAVE_FILE)) {
-                return new LoadResult(tasks, 0, false);
-            }
-
-            int skippedLines = 0;
-            for (String taskLine : Files.readAllLines(SAVE_FILE, StandardCharsets.UTF_8)) {
-                if (taskLine.isBlank()) {
-                    continue;
-                }
-                try {
-                    tasks.add(createTaskFromData(parseDataFields(taskLine)));
-                } catch (IllegalArgumentException e) {
-                    skippedLines++;
-                }
-            }
-            return new LoadResult(tasks, skippedLines, false);
-        } catch (IOException | SecurityException e) {
-            return new LoadResult(new ArrayList<>(), 0, true);
-        }
-    }
-
-    /**
-     * Splits a stored line while unescaping literal separators and backslashes.
-     * Unescaped backslashes from older save files remain valid.
-     *
-     * @param taskLine one line from the save file
-     * @return the unescaped fields
-     */
-    private static String[] parseDataFields(String taskLine) {
-        List<String> fields = new ArrayList<>();
-        StringBuilder field = new StringBuilder();
-        for (int i = 0; i < taskLine.length(); i++) {
-            char current = taskLine.charAt(i);
-            if (current == '\\' && i + 1 < taskLine.length()) {
-                char next = taskLine.charAt(i + 1);
-                if (next == '\\' || next == '|') {
-                    field.append(next);
-                    i++;
-                    continue;
-                }
-            }
-            if (current == '|') {
-                fields.add(field.toString().strip());
-                field.setLength(0);
-            } else {
-                field.append(current);
-            }
-        }
-        fields.add(field.toString().strip());
-        return fields.toArray(String[]::new);
-    }
-
-    /**
-     * Reconstructs one task from the fields stored on a line of the save file.
-     *
-     * @param taskFields the task type, completion flag, and task-specific fields
-     * @return the reconstructed task
-     */
-    private static Task createTaskFromData(String[] taskFields) {
-        if (taskFields.length < 2 || (!taskFields[1].equals("0") && !taskFields[1].equals("1"))) {
-            throw new IllegalArgumentException("Invalid task status");
-        }
-
-        int expectedFieldCount = switch (taskFields[0]) {
-            case "T" -> 3;
-            case "D" -> 4;
-            case "E" -> 5;
-            default -> throw new IllegalArgumentException("Unknown task type");
-        };
-        if (taskFields.length != expectedFieldCount) {
-            throw new IllegalArgumentException("Incorrect number of task fields");
-        }
-        for (int i = 2; i < taskFields.length; i++) {
-            if (taskFields[i].isBlank()) {
-                throw new IllegalArgumentException("Task fields cannot be blank");
-            }
-        }
-
-        Task task = switch (taskFields[0]) {
-            case "T" -> new Todo(taskFields[2]);
-            case "D" -> new Deadline(taskFields[2], LocalDate.parse(taskFields[3]));
-            case "E" -> new Event(taskFields[2], taskFields[3], taskFields[4]);
-            default -> throw new IllegalArgumentException("Unknown task type");
-        };
-        if (taskFields[1].equals("1")) {
-            task.markAsDone();
-        }
-        return task;
     }
 
     /**
