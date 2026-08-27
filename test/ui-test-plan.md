@@ -14,11 +14,11 @@ This file is the source of truth for console UI test cases. Add one section per 
 
 ### UI-001 Add and list every task type
 
-- Aim: Verify that to-dos, deadlines, and events are stored and displayed with their type-specific details. Deadline and event dates/times must be kept as the exact strings entered.
+- Aim: Verify that to-dos, deadlines, and events are stored and displayed with their type-specific details. Deadline dates must be accepted in `yyyy-MM-dd` format and displayed as `MMM dd yyyy`.
 - Command: `java -cp out Lobby`
 - Inputs, in order:
   1. `todo borrow book`
-  2. `deadline do homework /by no idea :-p`
+  2. `deadline do homework /by 2019-10-15`
   3. `event project meeting /from Mon 2pm /to 4pm`
   4. `mark 2`
   5. `list`
@@ -43,7 +43,7 @@ This file is the source of truth for console UI test cases. Add one section per 
   ____________________________________________________________
   ____________________________________________________________
    Got it. I've added this task:
-     [D][ ] do homework (by: no idea :-p)
+     [D][ ] do homework (by: Oct 15 2019)
    Now you have 2 tasks in the list.
   ____________________________________________________________
   ____________________________________________________________
@@ -53,12 +53,12 @@ This file is the source of truth for console UI test cases. Add one section per 
   ____________________________________________________________
   ____________________________________________________________
    Nice! I've marked this task as done:
-     [D][X] do homework (by: no idea :-p)
+     [D][X] do homework (by: Oct 15 2019)
   ____________________________________________________________
   ____________________________________________________________
    Here are the tasks in your list:
    1.[T][ ] borrow book
-   2.[D][X] do homework (by: no idea :-p)
+   2.[D][X] do homework (by: Oct 15 2019)
    3.[E][ ] project meeting (from: Mon 2pm to: 4pm)
   ____________________________________________________________
   ____________________________________________________________
@@ -72,7 +72,7 @@ This file is the source of truth for console UI test cases. Add one section per 
 
   ```text
   T | 0 | borrow book
-  D | 1 | do homework | no idea :-p
+  D | 1 | do homework | 2019-10-15
   E | 0 | project meeting | Mon 2pm | 4pm
   ```
 
@@ -194,7 +194,7 @@ This file is the source of truth for console UI test cases. Add one section per 
   ____________________________________________________________
    Here are the tasks in your list:
    1.[T][X] read book
-   2.[D][ ] return book (by: June 6th)
+   2.[D][ ] return book (by: Jun 06 2019)
    3.[E][X] project meeting (from: Aug 6th 2pm to: 4pm)
   ____________________________________________________________
   ____________________________________________________________
@@ -209,7 +209,7 @@ This file is the source of truth for console UI test cases. Add one section per 
 
      ```text
      T | 1 | read book
-     D | 0 | return book | June 6th
+     D | 0 | return book | 2019-06-06
      E | 1 | project meeting | Aug 6th 2pm | 4pm
      ```
 
@@ -239,7 +239,7 @@ This file is the source of truth for console UI test cases. Add one section per 
    Here are the tasks in your list:
    1.[T][X] valid | todo
    2.[T][ ] open C:\Temp
-   3.[D][ ] return book (by: June 6th)
+   3.[D][ ] return book (by: Jun 06 2019)
    4.[E][X] project meeting (from: Aug 6th 2pm to: 4pm)
   ____________________________________________________________
   ____________________________________________________________
@@ -255,7 +255,7 @@ This file is the source of truth for console UI test cases. Add one section per 
      ```text
      T | 1 | valid \| todo
      T | 0 | open C:\\Temp
-     D | 0 | return book | June 6th
+     D | 0 | return book | 2019-06-06
      E | 1 | project meeting | Aug 6th 2pm | 4pm
 
      T | 2 | invalid status
@@ -505,8 +505,9 @@ This file is the source of truth for console UI test cases. Add one section per 
   1. `deadline`
   2. `deadline /by Monday`
   3. `deadline submit report /by`
-  4. `list`
-  5. `bye`
+  4. `deadline submit report /by next Monday`
+  5. `list`
+  6. `bye`
 - Expected output:
 
   ```text
@@ -528,6 +529,9 @@ This file is the source of truth for console UI test cases. Add one section per 
   ____________________________________________________________
   ____________________________________________________________
    A deadline needs a time after /by.
+  ____________________________________________________________
+  ____________________________________________________________
+   Please enter the deadline date as yyyy-MM-dd, for example 2019-10-15.
   ____________________________________________________________
   ____________________________________________________________
    Here are the tasks in your list:
