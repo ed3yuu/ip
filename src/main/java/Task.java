@@ -48,12 +48,31 @@ public class Task {
     }
 
     /**
+     * Reports whether this task has been completed.
+     *
+     * @return {@code true} when the task is done
+     */
+    public boolean isDone() {
+        return isDone;
+    }
+
+    /**
+     * Escapes separator and backslash characters so a field can be stored safely.
+     *
+     * @param field the field to escape
+     * @return the escaped field
+     */
+    protected static String escapeDataField(String field) {
+        return field.replace("\\", "\\\\").replace("|", "\\|");
+    }
+
+    /**
      * Formats the fields shared by every task for storage.
      *
      * @return the completion flag and description separated by {@code |}
      */
     protected String toDataFields() {
-        return (isDone ? "1" : "0") + " | " + description;
+        return (isDone ? "1" : "0") + " | " + escapeDataField(description);
     }
 
     /**

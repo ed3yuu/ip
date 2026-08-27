@@ -22,7 +22,7 @@ public class Deadline extends Task {
      */
     @Override
     public String toDataString() {
-        return "D | " + toDataFields() + " | " + by;
+        return "D | " + toDataFields() + " | " + escapeDataField(by);
     }
 
     /**
