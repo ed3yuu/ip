@@ -1,5 +1,4 @@
 import java.io.IOException;
-import java.util.List;
 
 /**
  * Starts the Lobby chatbot application.
@@ -16,7 +15,7 @@ public class Lobby {
         Parser parser = new Parser();
         ui.showWelcome();
         Storage.LoadResult loadResult = storage.load();
-        List<Task> tasks = loadResult.tasks();
+        TaskList tasks = new TaskList(loadResult.tasks());
         showLoadWarning(loadResult, ui);
         String command;
         while ((command = ui.readCommand()) != null) {
@@ -33,16 +32,15 @@ public class Lobby {
                 case MARK: {
                     try {
                         int taskNumber = parser.parseTaskNumber(command, "mark");
-                        if (taskNumber < 1 || taskNumber > tasks.size()) {
+                        if (!tasks.containsTaskNumber(taskNumber)) {
                             ui.showError("Please enter the number of a task in the list.");
                         } else {
-                            int taskIndex = taskNumber - 1;
-                            Task task = tasks.get(taskIndex);
+                            Task task = tasks.get(taskNumber);
                             boolean wasDone = task.isDone();
-                            task.markAsDone();
+                            tasks.mark(taskNumber);
                             if (!trySaveTasks(tasks, storage, ui)) {
                                 if (!wasDone) {
-                                    task.markAsNotDone();
+                                    tasks.unmark(taskNumber);
                                 }
                                 break;
                             }
@@ -56,16 +54,15 @@ public class Lobby {
                 case UNMARK: {
                     try {
                         int taskNumber = parser.parseTaskNumber(command, "unmark");
-                        if (taskNumber < 1 || taskNumber > tasks.size()) {
+                        if (!tasks.containsTaskNumber(taskNumber)) {
                             ui.showError("Please enter the number of a task in the list.");
                         } else {
-                            int taskIndex = taskNumber - 1;
-                            Task task = tasks.get(taskIndex);
+                            Task task = tasks.get(taskNumber);
                             boolean wasDone = task.isDone();
-                            task.markAsNotDone();
+                            tasks.unmark(taskNumber);
                             if (!trySaveTasks(tasks, storage, ui)) {
                                 if (wasDone) {
-                                    task.markAsDone();
+                                    tasks.mark(taskNumber);
                                 }
                                 break;
                             }
@@ -81,7 +78,7 @@ public class Lobby {
                         Todo todo = parser.parseTodo(command);
                         tasks.add(todo);
                         if (!trySaveTasks(tasks, storage, ui)) {
-                            tasks.remove(tasks.size() - 1);
+                            tasks.delete(tasks.size());
                             break;
                         }
                         ui.showTaskAdded(todo, tasks.size());
@@ -94,7 +91,7 @@ public class Lobby {
                         Deadline deadline = parser.parseDeadline(command);
                         tasks.add(deadline);
                         if (!trySaveTasks(tasks, storage, ui)) {
-                            tasks.remove(tasks.size() - 1);
+                            tasks.delete(tasks.size());
                             break;
                         }
                         ui.showTaskAdded(deadline, tasks.size());
@@ -107,7 +104,7 @@ public class Lobby {
                         Event event = parser.parseEvent(command);
                         tasks.add(event);
                         if (!trySaveTasks(tasks, storage, ui)) {
-                            tasks.remove(tasks.size() - 1);
+                            tasks.delete(tasks.size());
                             break;
                         }
                         ui.showTaskAdded(event, tasks.size());
@@ -118,13 +115,12 @@ public class Lobby {
                 case DELETE: {
                     try {
                         int taskNumber = parser.parseTaskNumber(command, "delete");
-                        if (taskNumber < 1 || taskNumber > tasks.size()) {
+                        if (!tasks.containsTaskNumber(taskNumber)) {
                             ui.showError("Please enter the number of a task in the list.");
                         } else {
-                            int taskIndex = taskNumber - 1;
-                            Task removedTask = tasks.remove(taskIndex);
+                            Task removedTask = tasks.delete(taskNumber);
                             if (!trySaveTasks(tasks, storage, ui)) {
-                                tasks.add(taskIndex, removedTask);
+                                tasks.add(taskNumber, removedTask);
                                 break;
                             }
                             ui.showTaskDeleted(removedTask, tasks.size());
@@ -168,9 +164,9 @@ public class Lobby {
      * @param ui the console UI used to report a failure
      * @return {@code true} when the save succeeded
      */
-    private static boolean trySaveTasks(List<Task> tasks, Storage storage, Ui ui) {
+    private static boolean trySaveTasks(TaskList tasks, Storage storage, Ui ui) {
         try {
-            storage.save(tasks);
+            storage.save(tasks.asList());
             return true;
         } catch (IOException | SecurityException e) {
             ui.showError("I couldn't save your changes. Please check that data/lobby.txt is writable.");

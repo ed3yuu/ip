@@ -1,4 +1,3 @@
-import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -61,10 +60,10 @@ public class Ui {
      *
      * @param tasks tasks to display
      */
-    public void showTaskList(List<Task> tasks) {
+    public void showTaskList(TaskList tasks) {
         System.out.println(" Here are the tasks in your list:");
-        for (int i = 0; i < tasks.size(); i++) {
-            System.out.println(" " + (i + 1) + "." + tasks.get(i));
+        for (int taskNumber = 1; taskNumber <= tasks.size(); taskNumber++) {
+            System.out.println(" " + taskNumber + "." + tasks.get(taskNumber));
         }
     }
 
