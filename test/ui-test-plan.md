@@ -406,6 +406,50 @@ This file is the source of truth for console UI test cases. Add one section per 
 - Comparison rule: exact, after normalizing Windows line endings to `\n`.
 - Setup: Compile all files in `src/main/java` to the `out` folder with Java 25 before running the command.
 
+### UI-012 Start when the data folder and file do not exist
+
+- Aim: Verify that a first run starts with an empty task list and creates both `data` and `data/lobby.txt` when the first task is added.
+- Command: `java -cp out Lobby`
+- Inputs, in order:
+  1. `list`
+  2. `todo first run`
+  3. `bye`
+- Expected output:
+
+  ```text
+  ____________________________________________________________
+   _           _     _
+  | |    ___  | |__ | |__  _   _
+  | |   / _ \ | '_ \| '_ \| | | |
+  | |__| (_) | |_) | |_) | |_| |
+  |_____\___/|_.__/|_.__/ \__, |
+                           |___/
+  Hello! I'm Lobby.
+  What can I do for you?
+  ____________________________________________________________
+  ____________________________________________________________
+   Here are the tasks in your list:
+  ____________________________________________________________
+  ____________________________________________________________
+   Got it. I've added this task:
+     [T][ ] first run
+   Now you have 1 task in the list.
+  ____________________________________________________________
+  ____________________________________________________________
+   Bye. Hope to see you again soon!
+  ____________________________________________________________
+  ```
+
+- Comparison rule: exact, after normalizing Windows line endings to `\n`.
+- Setup:
+  1. Compile all files in `src/main/java` to the `out` folder with Java 25.
+  2. Remove the entire `data` directory before running the command.
+- Expected saved file (`data/lobby.txt`), after normalizing line endings to `\n`:
+
+  ```text
+  T | 0 | first run
+  ```
+
 ### UI-004 Reject malformed event commands
 
 - Aim: Verify that event commands report specific missing parts and do not add an incomplete task.
