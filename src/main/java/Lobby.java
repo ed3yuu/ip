@@ -9,7 +9,6 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Scanner;
 
 /**
  * Starts the Lobby chatbot application.
@@ -65,61 +64,44 @@ public class Lobby {
      * @param args command-line arguments (not used)
      */
     public static void main(String[] args) {
-        String banner = " _           _     _\n"
-                + "| |    ___  | |__ | |__  _   _\n"
-                + "| |   / _ \\ | '_ \\| '_ \\| | | |\n"
-                + "| |__| (_) | |_) | |_) | |_| |\n"
-                + "|_____\\___/|_.__/|_.__/ \\__, |\n"
-                + "                         |___/";
-        String divider = "____________________________________________________________";
-
-        System.out.println(divider);
-        System.out.println(banner);
-        System.out.println("Hello! I'm Lobby.");
-        System.out.println("What can I do for you?");
-        System.out.println(divider);
-
-        Scanner scanner = new Scanner(System.in);
+        Ui ui = new Ui();
+        ui.showWelcome();
         LoadResult loadResult = loadTasks();
         List<Task> tasks = loadResult.tasks();
-        printLoadWarning(loadResult, divider);
-        while (scanner.hasNextLine()) {
-            String command = scanner.nextLine().trim();
-            System.out.println(divider);
+        showLoadWarning(loadResult, ui);
+        String command;
+        while ((command = ui.readCommand()) != null) {
+            ui.startResponse();
 
             Command commandType = parseCommand(command);
             switch (commandType) {
                 case BYE:
-                    printFarewell(divider);
+                    ui.showFarewell();
                     return;
                 case LIST:
-                    System.out.println(" Here are the tasks in your list:");
-                    for (int i = 0; i < tasks.size(); i++) {
-                        System.out.println(" " + (i + 1) + "." + tasks.get(i));
-                    }
+                    ui.showTaskList(tasks);
                     break;
                 case MARK: {
                     String taskNumberText = command.substring("mark".length()).trim();
                     try {
                         int taskNumber = Integer.parseInt(taskNumberText);
                         if (taskNumber < 1 || taskNumber > tasks.size()) {
-                            System.out.println(" Please enter the number of a task in the list.");
+                            ui.showError("Please enter the number of a task in the list.");
                         } else {
                             int taskIndex = taskNumber - 1;
                             Task task = tasks.get(taskIndex);
                             boolean wasDone = task.isDone();
                             task.markAsDone();
-                            if (!trySaveTasks(tasks)) {
+                            if (!trySaveTasks(tasks, ui)) {
                                 if (!wasDone) {
                                     task.markAsNotDone();
                                 }
                                 break;
                             }
-                            System.out.println(" Nice! I've marked this task as done:");
-                            System.out.println("   " + task);
+                            ui.showTaskMarked(task);
                         }
                     } catch (NumberFormatException e) {
-                        System.out.println(" Please use mark followed by a task number.");
+                        ui.showError("Please use mark followed by a task number.");
                     }
                     break;
                 }
@@ -128,23 +110,22 @@ public class Lobby {
                     try {
                         int taskNumber = Integer.parseInt(taskNumberText);
                         if (taskNumber < 1 || taskNumber > tasks.size()) {
-                            System.out.println(" Please enter the number of a task in the list.");
+                            ui.showError("Please enter the number of a task in the list.");
                         } else {
                             int taskIndex = taskNumber - 1;
                             Task task = tasks.get(taskIndex);
                             boolean wasDone = task.isDone();
                             task.markAsNotDone();
-                            if (!trySaveTasks(tasks)) {
+                            if (!trySaveTasks(tasks, ui)) {
                                 if (wasDone) {
                                     task.markAsDone();
                                 }
                                 break;
                             }
-                            System.out.println(" OK, I've marked this task as not done yet:");
-                            System.out.println("   " + task);
+                            ui.showTaskUnmarked(task);
                         }
                     } catch (NumberFormatException e) {
-                        System.out.println(" Please use unmark followed by a task number.");
+                        ui.showError("Please use unmark followed by a task number.");
                     }
                     break;
                 }
@@ -152,39 +133,39 @@ public class Lobby {
                     try {
                         Todo todo = createTodo(command);
                         tasks.add(todo);
-                        if (!trySaveTasks(tasks)) {
+                        if (!trySaveTasks(tasks, ui)) {
                             tasks.remove(tasks.size() - 1);
                             break;
                         }
-                        printTaskAdded(todo, tasks.size());
+                        ui.showTaskAdded(todo, tasks.size());
                     } catch (LobbyException e) {
-                        System.out.println(" " + e.getMessage());
+                        ui.showError(e.getMessage());
                     }
                     break;
                 case DEADLINE:
                     try {
                         Deadline deadline = createDeadline(command);
                         tasks.add(deadline);
-                        if (!trySaveTasks(tasks)) {
+                        if (!trySaveTasks(tasks, ui)) {
                             tasks.remove(tasks.size() - 1);
                             break;
                         }
-                        printTaskAdded(deadline, tasks.size());
+                        ui.showTaskAdded(deadline, tasks.size());
                     } catch (LobbyException e) {
-                        System.out.println(" " + e.getMessage());
+                        ui.showError(e.getMessage());
                     }
                     break;
                 case EVENT:
                     try {
                         Event event = createEvent(command);
                         tasks.add(event);
-                        if (!trySaveTasks(tasks)) {
+                        if (!trySaveTasks(tasks, ui)) {
                             tasks.remove(tasks.size() - 1);
                             break;
                         }
-                        printTaskAdded(event, tasks.size());
+                        ui.showTaskAdded(event, tasks.size());
                     } catch (LobbyException e) {
-                        System.out.println(" " + e.getMessage());
+                        ui.showError(e.getMessage());
                     }
                     break;
                 case DELETE: {
@@ -192,62 +173,45 @@ public class Lobby {
                     try {
                         int taskNumber = Integer.parseInt(taskNumberText);
                         if (taskNumber < 1 || taskNumber > tasks.size()) {
-                            System.out.println(" Please enter the number of a task in the list.");
+                            ui.showError("Please enter the number of a task in the list.");
                         } else {
                             int taskIndex = taskNumber - 1;
                             Task removedTask = tasks.remove(taskIndex);
-                            if (!trySaveTasks(tasks)) {
+                            if (!trySaveTasks(tasks, ui)) {
                                 tasks.add(taskIndex, removedTask);
                                 break;
                             }
-                            System.out.println(" Noted. I've removed this task:");
-                            System.out.println("   " + removedTask);
-                            String taskWord = tasks.size() == 1 ? "task" : "tasks";
-                            System.out.println(" Now you have " + tasks.size() + " " + taskWord + " in the list.");
+                            ui.showTaskDeleted(removedTask, tasks.size());
                         }
                     } catch (NumberFormatException e) {
-                        System.out.println(" Please use delete followed by a task number.");
+                        ui.showError("Please use delete followed by a task number.");
                     }
                     break;
                 }
                 case UNKNOWN:
                 default:
-                    System.out.println(" Please use todo, deadline, event, list, mark, unmark, delete, or bye.");
+                    ui.showError("Please use todo, deadline, event, list, mark, unmark, delete, or bye.");
                     break;
             }
 
-            System.out.println(divider);
+            ui.endResponse();
         }
-        System.out.println(divider);
-        printFarewell(divider);
+        ui.startResponse();
+        ui.showFarewell();
     }
 
     /**
      * Prints a warning when some or all saved tasks could not be loaded.
      *
      * @param loadResult the result of attempting to load the save file
-     * @param divider the line used to separate chatbot responses
+     * @param ui the console UI used to show the warning
      */
-    private static void printLoadWarning(LoadResult loadResult, String divider) {
+    private static void showLoadWarning(LoadResult loadResult, Ui ui) {
         if (loadResult.readFailed()) {
-            System.out.println(" I couldn't read data/lobby.txt, so I started with an empty task list.");
-            System.out.println(divider);
+            ui.showLoadingError();
         } else if (loadResult.skippedLines() > 0) {
-            String lineWord = loadResult.skippedLines() == 1 ? "line" : "lines";
-            System.out.println(" I skipped " + loadResult.skippedLines() + " invalid " + lineWord
-                    + " while loading data/lobby.txt.");
-            System.out.println(divider);
+            ui.showSkippedLinesWarning(loadResult.skippedLines());
         }
-    }
-
-    /**
-     * Prints the standard goodbye response.
-     *
-     * @param divider the line printed after the response
-     */
-    private static void printFarewell(String divider) {
-        System.out.println(" Bye. Hope to see you again soon!");
-        System.out.println(divider);
     }
 
     /**
@@ -280,14 +244,15 @@ public class Lobby {
      * Attempts to save a mutation and reports a recoverable error to the user.
      *
      * @param tasks the proposed new task list
+     * @param ui the console UI used to report a failure
      * @return {@code true} when the save succeeded
      */
-    private static boolean trySaveTasks(List<Task> tasks) {
+    private static boolean trySaveTasks(List<Task> tasks, Ui ui) {
         try {
             saveTasks(tasks);
             return true;
         } catch (IOException | SecurityException e) {
-            System.out.println(" I couldn't save your changes. Please check that data/lobby.txt is writable.");
+            ui.showError("I couldn't save your changes. Please check that data/lobby.txt is writable.");
             return false;
         }
     }
@@ -388,19 +353,6 @@ public class Lobby {
             task.markAsDone();
         }
         return task;
-    }
-
-    /**
-     * Prints the confirmation shown after a new task is added.
-     *
-     * @param task the task that was added
-     * @param taskCount the number of tasks currently stored
-     */
-    private static void printTaskAdded(Task task, int taskCount) {
-        System.out.println(" Got it. I've added this task:");
-        System.out.println("   " + task);
-        String taskWord = taskCount == 1 ? "task" : "tasks";
-        System.out.println(" Now you have " + taskCount + " " + taskWord + " in the list.");
     }
 
     /**
