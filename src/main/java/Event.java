@@ -19,6 +19,18 @@ public class Event extends Task {
     }
 
     /**
+     * Formats this event as one line in the save file.
+     *
+     * @return the serialized event
+     */
+    @Override
+    public String toDataString() {
+        return "E | " + toDataFields()
+                + " | " + escapeDataField(from)
+                + " | " + escapeDataField(to);
+    }
+
+    /**
      * Formats this event for display in the task list.
      *
      * @return the task type, completion status, description, start, and end

@@ -16,6 +16,16 @@ public class Deadline extends Task {
     }
 
     /**
+     * Formats this deadline as one line in the save file.
+     *
+     * @return the serialized deadline
+     */
+    @Override
+    public String toDataString() {
+        return "D | " + toDataFields() + " | " + escapeDataField(by);
+    }
+
+    /**
      * Formats this deadline for display in the task list.
      *
      * @return the task type, completion status, description, and deadline
