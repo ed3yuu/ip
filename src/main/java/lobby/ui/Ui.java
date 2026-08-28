@@ -63,7 +63,7 @@ public class Ui {
     /**
      * Shows all tasks with one-based numbering.
      *
-     * @param tasks tasks to display
+     * @param tasks tasks to display.
      */
     public void showTaskList(TaskList tasks) {
         System.out.println(" Here are the tasks in your list:");
@@ -75,8 +75,8 @@ public class Ui {
     /**
      * Shows a successful task addition and the new list size.
      *
-     * @param task the task that was added
-     * @param taskCount the number of tasks after the addition
+     * @param task the task that was added.
+     * @param taskCount the number of tasks after the addition.
      */
     public void showTaskAdded(Task task, int taskCount) {
         System.out.println(" Got it. I've added this task:");
@@ -87,8 +87,8 @@ public class Ui {
     /**
      * Shows a successful task deletion and the new list size.
      *
-     * @param task the task that was removed
-     * @param taskCount the number of tasks after the deletion
+     * @param task the task that was removed.
+     * @param taskCount the number of tasks after the deletion.
      */
     public void showTaskDeleted(Task task, int taskCount) {
         System.out.println(" Noted. I've removed this task:");
@@ -99,7 +99,7 @@ public class Ui {
     /**
      * Shows that a task was marked as completed.
      *
-     * @param task the updated task
+     * @param task the updated task.
      */
     public void showTaskMarked(Task task) {
         System.out.println(" Nice! I've marked this task as done:");
@@ -109,7 +109,7 @@ public class Ui {
     /**
      * Shows that a task was marked as incomplete.
      *
-     * @param task the updated task
+     * @param task the updated task.
      */
     public void showTaskUnmarked(Task task) {
         System.out.println(" OK, I've marked this task as not done yet:");
@@ -119,7 +119,7 @@ public class Ui {
     /**
      * Shows a recoverable error or validation message.
      *
-     * @param message explanation to show to the user
+     * @param message explanation to show to the user.
      */
     public void showError(String message) {
         System.out.println(" " + message);
@@ -128,7 +128,7 @@ public class Ui {
     /**
      * Shows a warning that malformed saved records were ignored.
      *
-     * @param skippedLines number of invalid records
+     * @param skippedLines number of invalid records.
      */
     public void showSkippedLinesWarning(int skippedLines) {
         String lineWord = skippedLines == 1 ? "line" : "lines";
@@ -156,7 +156,7 @@ public class Ui {
     /**
      * Shows the list size with the correct singular or plural noun.
      *
-     * @param taskCount current number of tasks
+     * @param taskCount current number of tasks.
      */
     private void showTaskCount(int taskCount) {
         String taskWord = taskCount == 1 ? "task" : "tasks";

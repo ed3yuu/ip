@@ -24,9 +24,9 @@ public class Storage {
     /**
      * Contains the usable tasks and any warning discovered while loading them.
      *
-     * @param tasks tasks reconstructed successfully
-     * @param skippedLines number of malformed non-blank lines ignored
-     * @param readFailed whether the save file could not be read at all
+     * @param tasks tasks reconstructed successfully.
+     * @param skippedLines number of malformed non-blank lines ignored.
+     * @param readFailed whether the save file could not be read at all.
      */
     public record LoadResult(List<Task> tasks, int skippedLines, boolean readFailed) {
     }
@@ -34,7 +34,7 @@ public class Storage {
     /**
      * Creates storage that reads from and writes to the given path.
      *
-     * @param filePath location of the task data file
+     * @param filePath location of the task data file.
      */
     public Storage(String filePath) {
         this.filePath = Path.of(filePath);
@@ -74,7 +74,7 @@ public class Storage {
      * Rewrites the save file so that it matches the current task list.
      * The parent directory is created automatically on the first save.
      *
-     * @param tasks the complete current task list
+     * @param tasks the complete current task list.
      * @throws IOException if the directory or file cannot be written
      */
     public void save(List<Task> tasks) throws IOException {
@@ -100,7 +100,7 @@ public class Storage {
      * Splits a stored line while unescaping literal separators and backslashes.
      * Unescaped backslashes from older save files remain valid.
      *
-     * @param taskLine one line from the save file
+     * @param taskLine one line from the save file.
      * @return the unescaped fields
      */
     private String[] parseDataFields(String taskLine) {
@@ -130,7 +130,7 @@ public class Storage {
     /**
      * Reconstructs one task from the fields stored on a line of the save file.
      *
-     * @param taskFields the task type, completion flag, and task-specific fields
+     * @param taskFields the task type, completion flag, and task-specific fields.
      * @return the reconstructed task
      */
     private Task createTaskFromData(String[] taskFields) {

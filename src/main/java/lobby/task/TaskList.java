@@ -20,7 +20,7 @@ public class TaskList {
      * Creates a task list containing the supplied tasks.
      * A defensive copy prevents outside code from changing the collection directly.
      *
-     * @param tasks initial tasks
+     * @param tasks initial tasks.
      */
     public TaskList(List<Task> tasks) {
         this.tasks = new ArrayList<>(tasks);
@@ -29,7 +29,7 @@ public class TaskList {
     /**
      * Adds a task to the end of the list.
      *
-     * @param task task to add
+     * @param task task to add.
      */
     public void add(Task task) {
         tasks.add(task);
@@ -39,8 +39,8 @@ public class TaskList {
      * Inserts a task at a one-based position.
      * This supports restoring a deleted task if persistence fails.
      *
-     * @param taskNumber one-based position at which to insert the task
-     * @param task task to insert
+     * @param taskNumber one-based position at which to insert the task.
+     * @param task task to insert.
      */
     public void add(int taskNumber, Task task) {
         tasks.add(toIndex(taskNumber), task);
@@ -49,7 +49,7 @@ public class TaskList {
     /**
      * Returns the task with the given one-based task number.
      *
-     * @param taskNumber one-based task number
+     * @param taskNumber one-based task number.
      * @return the selected task
      */
     public Task get(int taskNumber) {
@@ -59,7 +59,7 @@ public class TaskList {
     /**
      * Removes and returns the task with the given one-based task number.
      *
-     * @param taskNumber one-based task number
+     * @param taskNumber one-based task number.
      * @return the removed task
      */
     public Task delete(int taskNumber) {
@@ -69,7 +69,7 @@ public class TaskList {
     /**
      * Marks a task as completed and returns it for display.
      *
-     * @param taskNumber one-based task number
+     * @param taskNumber one-based task number.
      * @return the updated task
      */
     public Task mark(int taskNumber) {
@@ -81,7 +81,7 @@ public class TaskList {
     /**
      * Marks a task as incomplete and returns it for display.
      *
-     * @param taskNumber one-based task number
+     * @param taskNumber one-based task number.
      * @return the updated task
      */
     public Task unmark(int taskNumber) {
@@ -93,7 +93,7 @@ public class TaskList {
     /**
      * Checks whether a one-based task number identifies a task in this list.
      *
-     * @param taskNumber one-based task number to check
+     * @param taskNumber one-based task number to check.
      * @return {@code true} when the task number is valid
      */
     public boolean containsTaskNumber(int taskNumber) {
@@ -121,7 +121,7 @@ public class TaskList {
     /**
      * Converts a one-based task number to its zero-based list index.
      *
-     * @param taskNumber one-based task number
+     * @param taskNumber one-based task number.
      * @return zero-based index
      */
     private int toIndex(int taskNumber) {

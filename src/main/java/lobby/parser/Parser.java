@@ -48,7 +48,7 @@ public class Parser {
      * Determines which command a user command line represents.
      * Only the first word is considered, so arguments do not affect matching.
      *
-     * @param command the complete command entered by the user
+     * @param command the complete command entered by the user.
      * @return the matching command, or {@link Command#UNKNOWN} if none matches
      */
     public Command parseCommand(String command) {
@@ -63,8 +63,8 @@ public class Parser {
     /**
      * Reads a task number following a command word.
      *
-     * @param command the complete command entered by the user
-     * @param commandWord the command word to remove before parsing the number
+     * @param command the complete command entered by the user.
+     * @param commandWord the command word to remove before parsing the number.
      * @return the one-based task number entered by the user
      * @throws LobbyException if the argument is not an integer
      */
@@ -80,7 +80,7 @@ public class Parser {
     /**
      * Creates a to-do after validating that the command has a description.
      *
-     * @param command the complete command entered by the user
+     * @param command the complete command entered by the user.
      * @return the new to-do
      * @throws LobbyException if the command does not include a description
      */
@@ -95,7 +95,7 @@ public class Parser {
     /**
      * Creates a deadline after validating all required command parts.
      *
-     * @param command the complete command entered by the user
+     * @param command the complete command entered by the user.
      * @return the new deadline
      * @throws LobbyException if the command lacks a description, {@code /by}, or valid date
      */
@@ -124,7 +124,7 @@ public class Parser {
     /**
      * Creates an event after validating all required command parts.
      *
-     * @param command the complete command entered by the user
+     * @param command the complete command entered by the user.
      * @return the new event
      * @throws LobbyException if the command lacks a description, start time, or end time
      */
@@ -161,8 +161,8 @@ public class Parser {
     /**
      * Finds a case-insensitive marker surrounded by whitespace or string boundaries.
      *
-     * @param text command details to search
-     * @param marker marker to find, such as {@code /by}
+     * @param text command details to search.
+     * @param marker marker to find, such as {@code /by}.
      * @return the marker's starting index, or {@code -1} if it is absent
      */
     private int findMarker(String text, String marker) {
