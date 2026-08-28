@@ -18,6 +18,9 @@ import org.junit.jupiter.api.Test;
  */
 public class TaskListTest {
 
+    /**
+     * Verifies that construction makes a defensive copy of the source list.
+     */
     @Test
     public void constructor_sourceListChanged_taskListUnaffected() {
         List<Task> source = new ArrayList<>();
@@ -30,6 +33,9 @@ public class TaskListTest {
         assertEquals("first", taskList.get(1).getDescription());
     }
 
+    /**
+     * Verifies that tasks added to the end retain their insertion order.
+     */
     @Test
     public void add_tasksAdded_returnsTasksInInsertionOrder() {
         TaskList taskList = new TaskList();
@@ -45,6 +51,9 @@ public class TaskListTest {
                 () -> assertSame(second, taskList.get(2)));
     }
 
+    /**
+     * Verifies that insertion uses the task list's one-based positions.
+     */
     @Test
     public void add_oneBasedPosition_insertsTaskAtPosition() {
         Task first = new Todo("first");
@@ -57,6 +66,9 @@ public class TaskListTest {
         assertIterableEquals(List.of(first, inserted, second), taskList.asList());
     }
 
+    /**
+     * Verifies that deletion removes and returns the selected task.
+     */
     @Test
     public void delete_validTaskNumber_removesAndReturnsTask() {
         Task first = new Todo("first");
@@ -71,6 +83,9 @@ public class TaskListTest {
                 () -> assertSame(second, taskList.get(1)));
     }
 
+    /**
+     * Verifies that marking and unmarking update and return the selected task.
+     */
     @Test
     public void markAndUnmark_validTaskNumber_updatesAndReturnsTask() {
         Task task = new Todo("read book");
@@ -87,6 +102,9 @@ public class TaskListTest {
         assertFalse(task.isDone());
     }
 
+    /**
+     * Verifies the valid lower and upper bounds for one-based task numbers.
+     */
     @Test
     public void containsTaskNumber_boundaries_returnsExpectedResult() {
         TaskList taskList = new TaskList(List.of(new Todo("first"), new Todo("second")));
@@ -99,6 +117,9 @@ public class TaskListTest {
                 () -> assertFalse(taskList.containsTaskNumber(3)));
     }
 
+    /**
+     * Verifies that list snapshots are immutable and independent of later changes.
+     */
     @Test
     public void asList_listModified_snapshotAndTaskListUnaffected() {
         Task first = new Todo("first");
@@ -114,6 +135,9 @@ public class TaskListTest {
                 () -> assertEquals(2, taskList.size()));
     }
 
+    /**
+     * Verifies that task operations reject numbers outside the list bounds.
+     */
     @Test
     public void taskOperations_invalidTaskNumber_exceptionThrown() {
         TaskList taskList = new TaskList(List.of(new Todo("only task")));

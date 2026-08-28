@@ -18,15 +18,30 @@ public class Parser {
      * Represents the commands Lobby understands.
      */
     public enum Command {
+        /** Ends the application. */
         BYE,
+        /** Displays all saved tasks. */
         LIST,
+        /** Marks a task as completed. */
         MARK,
+        /** Marks a task as incomplete. */
         UNMARK,
+        /** Adds a to-do task. */
         TODO,
+        /** Adds a deadline task. */
         DEADLINE,
+        /** Adds an event task. */
         EVENT,
+        /** Removes a task. */
         DELETE,
+        /** Represents input that does not match a supported command. */
         UNKNOWN
+    }
+
+    /**
+     * Creates a parser for interpreting Lobby commands.
+     */
+    public Parser() {
     }
 
     /**
