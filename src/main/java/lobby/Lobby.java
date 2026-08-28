@@ -53,6 +53,14 @@ public class Lobby {
                 case LIST:
                     ui.showTaskList(tasks);
                     break;
+                case FIND:
+                    try {
+                        String keyword = parser.parseFindKeyword(command);
+                        ui.showMatchingTasks(tasks.find(keyword));
+                    } catch (LobbyException e) {
+                        ui.showError(e.getMessage());
+                    }
+                    break;
                 case MARK: {
                     try {
                         int taskNumber = parser.parseTaskNumber(command, "mark");
@@ -156,7 +164,7 @@ public class Lobby {
                 }
                 case UNKNOWN:
                 default:
-                    ui.showError("Please use todo, deadline, event, list, mark, unmark, delete, or bye.");
+                    ui.showError("Please use todo, deadline, event, list, find, mark, unmark, delete, or bye.");
                     break;
             }
 
