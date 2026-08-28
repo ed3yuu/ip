@@ -19,6 +19,27 @@ import org.junit.jupiter.api.Test;
 public class TaskListTest {
 
     @Test
+    public void find_keywordInDescriptions_returnsMatchingTasksInOriginalOrder() {
+        Task matchingTodo = new Todo("read book");
+        Task nonMatchingTodo = new Todo("buy groceries");
+        Task matchingDeadline = new Deadline("return book", java.time.LocalDate.of(2026, 6, 6));
+        TaskList taskList = new TaskList(List.of(matchingTodo, nonMatchingTodo, matchingDeadline));
+
+        TaskList matches = taskList.find("book");
+
+        assertIterableEquals(List.of(matchingTodo, matchingDeadline), matches.asList());
+    }
+
+    @Test
+    public void find_keywordCaseDoesNotMatch_returnsEmptyTaskList() {
+        TaskList taskList = new TaskList(List.of(new Todo("read book")));
+
+        TaskList matches = taskList.find("Book");
+
+        assertEquals(0, matches.size());
+    }
+
+    @Test
     public void constructor_sourceListChanged_taskListUnaffected() {
         List<Task> source = new ArrayList<>();
         source.add(new Todo("first"));

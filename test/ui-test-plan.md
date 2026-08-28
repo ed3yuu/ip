@@ -543,3 +543,48 @@ This file is the source of truth for console UI test cases. Add one section per 
 
 - Comparison rule: exact, after normalizing Windows line endings to `\n`.
 - Setup: Compile all files in `src/main/java` to the `out` folder with Java 25 before running the command.
+
+### UI-013 Find tasks by a keyword in their descriptions
+
+- Aim: Verify that `find` displays only tasks whose descriptions contain the keyword, preserves their order, and rejects a missing keyword.
+- Command: `java -cp out lobby.Lobby`
+- Inputs, in order:
+  1. `find book`
+  2. `find`
+  3. `bye`
+- Expected output:
+
+  ```text
+  ____________________________________________________________
+   _           _     _
+  | |    ___  | |__ | |__  _   _
+  | |   / _ \ | '_ \| '_ \| | | |
+  | |__| (_) | |_) | |_) | |_| |
+  |_____\___/|_.__/|_.__/ \__, |
+                           |___/
+  Hello! I'm Lobby.
+  What can I do for you?
+  ____________________________________________________________
+  ____________________________________________________________
+   Here are the matching tasks in your list:
+   1.[T][X] read book
+   2.[D][ ] return book (by: Jun 06 2019)
+  ____________________________________________________________
+  ____________________________________________________________
+   Please use find followed by a keyword.
+  ____________________________________________________________
+  ____________________________________________________________
+   Bye. Hope to see you again soon!
+  ____________________________________________________________
+  ```
+
+- Comparison rule: exact, after normalizing Windows line endings to `\n`.
+- Setup:
+  1. Compile all files in `src/main/java` to the `out` folder with Java 25.
+  2. Create `data/lobby.txt` with this exact UTF-8 content:
+
+     ```text
+     T | 1 | read book
+     D | 0 | return book | 2019-06-06
+     T | 0 | buy groceries
+     ```

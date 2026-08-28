@@ -28,7 +28,8 @@ public class ParserTest {
                 () -> assertEquals(Parser.Command.TODO, parser.parseCommand("todo")),
                 () -> assertEquals(Parser.Command.DEADLINE, parser.parseCommand("deadline")),
                 () -> assertEquals(Parser.Command.EVENT, parser.parseCommand("event")),
-                () -> assertEquals(Parser.Command.DELETE, parser.parseCommand("delete")));
+                () -> assertEquals(Parser.Command.DELETE, parser.parseCommand("delete")),
+                () -> assertEquals(Parser.Command.FIND, parser.parseCommand("find")));
     }
 
     @Test
@@ -39,8 +40,21 @@ public class ParserTest {
     @Test
     public void parseCommand_unknownOrEmptyCommand_returnsUnknown() {
         assertAll(
-                () -> assertEquals(Parser.Command.UNKNOWN, parser.parseCommand("find book")),
+                () -> assertEquals(Parser.Command.UNKNOWN, parser.parseCommand("search book")),
                 () -> assertEquals(Parser.Command.UNKNOWN, parser.parseCommand("")));
+    }
+
+    @Test
+    public void parseFindKeyword_validCommand_returnsTrimmedKeyword() throws LobbyException {
+        assertEquals("read book", parser.parseFindKeyword("find   read book   "));
+    }
+
+    @Test
+    public void parseFindKeyword_missingKeyword_exceptionThrown() {
+        LobbyException exception = assertThrows(LobbyException.class,
+                () -> parser.parseFindKeyword("find   "));
+
+        assertEquals("Please use find followed by a keyword.", exception.getMessage());
     }
 
     @Test

@@ -101,6 +101,20 @@ public class TaskList {
     }
 
     /**
+     * Finds tasks whose descriptions contain the given keyword.
+     * The original ordering is preserved in the returned task list.
+     *
+     * @param keyword text to search for in task descriptions
+     * @return a new task list containing all matching tasks
+     */
+    public TaskList find(String keyword) {
+        List<Task> matchingTasks = tasks.stream()
+                .filter(task -> task.getDescription().contains(keyword))
+                .toList();
+        return new TaskList(matchingTasks);
+    }
+
+    /**
      * Returns the number of tasks in the list.
      *
      * @return current task count

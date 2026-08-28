@@ -26,6 +26,7 @@ public class Parser {
         DEADLINE,
         EVENT,
         DELETE,
+        FIND,
         UNKNOWN
     }
 
@@ -60,6 +61,21 @@ public class Parser {
         } catch (NumberFormatException e) {
             throw new LobbyException("Please use " + commandWord + " followed by a task number.");
         }
+    }
+
+    /**
+     * Reads and validates the keyword following the {@code find} command.
+     *
+     * @param command the complete command entered by the user
+     * @return the keyword to search for
+     * @throws LobbyException if no keyword was provided
+     */
+    public String parseFindKeyword(String command) throws LobbyException {
+        String keyword = command.substring("find".length()).trim();
+        if (keyword.isEmpty()) {
+            throw new LobbyException("Please use find followed by a keyword.");
+        }
+        return keyword;
     }
 
     /**
