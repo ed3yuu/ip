@@ -27,6 +27,9 @@ public class StorageTest {
     @TempDir
     private Path temporaryDirectory;
 
+    /**
+     * Verifies that loading a missing save file succeeds with no tasks.
+     */
     @Test
     public void load_missingFile_returnsEmptySuccessfulResult() {
         Storage storage = new Storage(temporaryDirectory.resolve("data/lobby.txt").toString());
@@ -39,6 +42,11 @@ public class StorageTest {
                 () -> assertFalse(result.readFailed()));
     }
 
+    /**
+     * Verifies that saving and reloading preserves every task type and creates directories.
+     *
+     * @throws IOException if the temporary test file cannot be written or read
+     */
     @Test
     public void saveAndLoad_allTaskTypes_preservesTasksAndCreatesParentDirectory()
             throws IOException {
@@ -63,6 +71,11 @@ public class StorageTest {
                         result.tasks().stream().map(Task::toDataString).toList()));
     }
 
+    /**
+     * Verifies that loading skips malformed records while preserving valid tasks.
+     *
+     * @throws IOException if the temporary test file cannot be written or read
+     */
     @Test
     public void load_validAndMalformedLines_recoversValidTasksAndCountsSkippedLines()
             throws IOException {
@@ -85,6 +98,9 @@ public class StorageTest {
                 () -> assertEquals("T | 0 | valid task", result.tasks().get(0).toDataString()));
     }
 
+    /**
+     * Verifies that attempting to load a directory is reported as a read failure.
+     */
     @Test
     public void load_pathIsDirectory_returnsReadFailure() {
         Storage storage = new Storage(temporaryDirectory.toString());
