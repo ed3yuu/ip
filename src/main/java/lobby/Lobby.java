@@ -25,7 +25,7 @@ public class Lobby {
     /**
      * Creates a Lobby application backed by the given task file.
      *
-     * @param filePath location used to load and save tasks
+     * @param filePath location used to load and save tasks.
      */
     public Lobby(String filePath) {
         this.ui = new Ui();
@@ -169,7 +169,7 @@ public class Lobby {
     /**
      * Starts Lobby using its default task file.
      *
-     * @param args command-line arguments (not used)
+     * @param args command-line arguments (not used).
      */
     public static void main(String[] args) {
         new Lobby("data/lobby.txt").run();

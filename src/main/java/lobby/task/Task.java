@@ -10,7 +10,7 @@ public class Task {
     /**
      * Creates a task that is initially not done.
      *
-     * @param description the text describing the task
+     * @param description the text describing the task.
      */
     public Task(String description) {
         this.description = description;
@@ -61,7 +61,7 @@ public class Task {
     /**
      * Escapes separator and backslash characters so a field can be stored safely.
      *
-     * @param field the field to escape
+     * @param field the field to escape.
      * @return the escaped field
      */
     protected static String escapeDataField(String field) {
