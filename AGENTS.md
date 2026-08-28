@@ -51,6 +51,9 @@ The test plan is the source of truth for console UI cases. If it needs new or co
 
 ## Git
 
+All proposed or created commits, commit messages, and branch names in this project must follow the project-specific
+`$seedu-git-standard` skill at `.codex/skills/seedu-git-standard/SKILL.md`. Invoke and follow that skill before
+proposing or creating a commit or branch.
+
 Use lightweight tags unless the user requests an annotated tag.
-When proposing or creating a commit message, include enough detail to explain the rationale for the change.
 Do not commit or push unless explicitly asked.
