@@ -36,10 +36,10 @@ public class StorageTest {
 
         Storage.LoadResult result = storage.load();
 
-        assertAll(
-                () -> assertTrue(result.tasks().isEmpty()),
-                () -> assertEquals(0, result.skippedLines()),
-                () -> assertFalse(result.readFailed()));
+        assertAll(() ->
+                assertTrue(result.tasks().isEmpty()), () ->
+                assertEquals(0, result.skippedLines()), () ->
+                assertFalse(result.readFailed()));
     }
 
     /**
@@ -62,11 +62,11 @@ public class StorageTest {
         storage.save(tasks);
         Storage.LoadResult result = storage.load();
 
-        assertAll(
-                () -> assertTrue(Files.exists(saveFile)),
-                () -> assertFalse(result.readFailed()),
-                () -> assertEquals(0, result.skippedLines()),
-                () -> assertEquals(
+        assertAll(() ->
+                assertTrue(Files.exists(saveFile)), () ->
+                assertFalse(result.readFailed()), () ->
+                assertEquals(0, result.skippedLines()), () ->
+                assertEquals(
                         tasks.stream().map(Task::toDataString).toList(),
                         result.tasks().stream().map(Task::toDataString).toList()));
     }
@@ -91,11 +91,11 @@ public class StorageTest {
 
         Storage.LoadResult result = storage.load();
 
-        assertAll(
-                () -> assertFalse(result.readFailed()),
-                () -> assertEquals(4, result.skippedLines()),
-                () -> assertEquals(1, result.tasks().size()),
-                () -> assertEquals("T | 0 | valid task", result.tasks().get(0).toDataString()));
+        assertAll(() ->
+                assertFalse(result.readFailed()), () ->
+                assertEquals(4, result.skippedLines()), () ->
+                assertEquals(1, result.tasks().size()), () ->
+                assertEquals("T | 0 | valid task", result.tasks().get(0).toDataString()));
     }
 
     /**
@@ -107,9 +107,9 @@ public class StorageTest {
 
         Storage.LoadResult result = storage.load();
 
-        assertAll(
-                () -> assertTrue(result.readFailed()),
-                () -> assertTrue(result.tasks().isEmpty()),
-                () -> assertEquals(0, result.skippedLines()));
+        assertAll(() ->
+                assertTrue(result.readFailed()), () ->
+                assertTrue(result.tasks().isEmpty()), () ->
+                assertEquals(0, result.skippedLines()));
     }
 }

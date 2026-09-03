@@ -66,10 +66,10 @@ public class TaskListTest {
         taskList.add(first);
         taskList.add(second);
 
-        assertAll(
-                () -> assertEquals(2, taskList.size()),
-                () -> assertSame(first, taskList.get(1)),
-                () -> assertSame(second, taskList.get(2)));
+        assertAll(() ->
+                assertEquals(2, taskList.size()), () ->
+                assertSame(first, taskList.get(1)), () ->
+                assertSame(second, taskList.get(2)));
     }
 
     /**
@@ -98,10 +98,10 @@ public class TaskListTest {
 
         Task deleted = taskList.delete(1);
 
-        assertAll(
-                () -> assertSame(first, deleted),
-                () -> assertEquals(1, taskList.size()),
-                () -> assertSame(second, taskList.get(1)));
+        assertAll(() ->
+                assertSame(first, deleted), () ->
+                assertEquals(1, taskList.size()), () ->
+                assertSame(second, taskList.get(1)));
     }
 
     /**
@@ -130,12 +130,12 @@ public class TaskListTest {
     public void containsTaskNumber_boundaries_returnsExpectedResult() {
         TaskList taskList = new TaskList(List.of(new Todo("first"), new Todo("second")));
 
-        assertAll(
-                () -> assertFalse(taskList.containsTaskNumber(-1)),
-                () -> assertFalse(taskList.containsTaskNumber(0)),
-                () -> assertTrue(taskList.containsTaskNumber(1)),
-                () -> assertTrue(taskList.containsTaskNumber(2)),
-                () -> assertFalse(taskList.containsTaskNumber(3)));
+        assertAll(() ->
+                assertFalse(taskList.containsTaskNumber(-1)), () ->
+                assertFalse(taskList.containsTaskNumber(0)), () ->
+                assertTrue(taskList.containsTaskNumber(1)), () ->
+                assertTrue(taskList.containsTaskNumber(2)), () ->
+                assertFalse(taskList.containsTaskNumber(3)));
     }
 
     /**
@@ -149,11 +149,11 @@ public class TaskListTest {
 
         taskList.add(new Todo("second"));
 
-        assertAll(
-                () -> assertEquals(List.of(first), snapshot),
-                () -> assertThrows(UnsupportedOperationException.class,
-                        () -> snapshot.add(new Todo("third"))),
-                () -> assertEquals(2, taskList.size()));
+        assertAll(() ->
+                assertEquals(List.of(first), snapshot), () ->
+                assertThrows(UnsupportedOperationException.class, () ->
+                        snapshot.add(new Todo("third"))), () ->
+                assertEquals(2, taskList.size()));
     }
 
     /**
@@ -163,11 +163,11 @@ public class TaskListTest {
     public void taskOperations_invalidTaskNumber_exceptionThrown() {
         TaskList taskList = new TaskList(List.of(new Todo("only task")));
 
-        assertAll(
-                () -> assertThrows(IndexOutOfBoundsException.class, () -> taskList.get(0)),
-                () -> assertThrows(IndexOutOfBoundsException.class, () -> taskList.get(2)),
-                () -> assertThrows(IndexOutOfBoundsException.class, () -> taskList.delete(0)),
-                () -> assertThrows(IndexOutOfBoundsException.class, () -> taskList.mark(2)),
-                () -> assertThrows(IndexOutOfBoundsException.class, () -> taskList.unmark(0)));
+        assertAll(() ->
+                assertThrows(IndexOutOfBoundsException.class, () -> taskList.get(0)), () ->
+                assertThrows(IndexOutOfBoundsException.class, () -> taskList.get(2)), () ->
+                assertThrows(IndexOutOfBoundsException.class, () -> taskList.delete(0)), () ->
+                assertThrows(IndexOutOfBoundsException.class, () -> taskList.mark(2)), () ->
+                assertThrows(IndexOutOfBoundsException.class, () -> taskList.unmark(0)));
     }
 }
