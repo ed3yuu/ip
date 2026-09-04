@@ -54,6 +54,27 @@ public class TaskListTest {
         assertEquals("first", taskList.get(1).getDescription());
     }
 
+    @Test
+    public void constructor_varargsTasks_containsTasksInArgumentOrder() {
+        Task first = new Todo("first");
+        Task second = new Todo("second");
+
+        TaskList taskList = new TaskList(first, second);
+
+        assertIterableEquals(List.of(first, second), taskList.asList());
+    }
+
+    @Test
+    public void constructor_sourceArrayChanged_taskListUnaffected() {
+        Task first = new Todo("first");
+        Task[] source = {first};
+        TaskList taskList = new TaskList(source);
+
+        source[0] = new Todo("replacement");
+
+        assertSame(first, taskList.get(1));
+    }
+
     /**
      * Verifies that tasks added to the end retain their insertion order.
      */
