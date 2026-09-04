@@ -10,10 +10,13 @@ public class TaskList {
     private final List<Task> tasks;
 
     /**
-     * Creates an empty task list.
+     * Creates a task list containing zero or more supplied tasks.
+     * A defensive copy prevents changes to the supplied array from affecting this list.
+     *
+     * @param tasks initial tasks.
      */
-    public TaskList() {
-        this.tasks = new ArrayList<>();
+    public TaskList(Task... tasks) {
+        this.tasks = new ArrayList<>(List.of(tasks));
     }
 
     /**
