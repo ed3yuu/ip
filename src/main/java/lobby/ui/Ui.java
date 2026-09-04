@@ -61,6 +61,15 @@ public class Ui {
     }
 
     /**
+     * Shows a complete response produced by Lobby.
+     *
+     * @param response response to display.
+     */
+    public void showResponse(String response) {
+        System.out.println(response);
+    }
+
+    /**
      * Shows all tasks with one-based numbering.
      *
      * @param tasks tasks to display.
