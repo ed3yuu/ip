@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import lobby.task.Deadline;
@@ -147,10 +148,8 @@ public class Storage {
         if (taskFields.length != expectedFieldCount) {
             throw new IllegalArgumentException("Incorrect number of task fields");
         }
-        for (int i = 2; i < taskFields.length; i++) {
-            if (taskFields[i].isBlank()) {
-                throw new IllegalArgumentException("Task fields cannot be blank");
-            }
+        if (Arrays.stream(taskFields, 2, taskFields.length).anyMatch(String::isBlank)) {
+            throw new IllegalArgumentException("Task fields cannot be blank");
         }
 
         Task task = switch (taskFields[0]) {
