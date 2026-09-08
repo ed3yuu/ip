@@ -157,7 +157,11 @@ public class Storage {
             case "T" -> new Todo(taskFields[2]);
             case "D" -> new Deadline(taskFields[2], LocalDate.parse(taskFields[3]));
             case "E" -> new Event(taskFields[2], taskFields[3], taskFields[4]);
-            default -> throw new IllegalArgumentException("Unknown task type");
+            default -> {
+                // The earlier field-count switch already rejected unsupported types.
+                assert false : "Every validated task type must have a reconstruction case";
+                throw new IllegalArgumentException("Unknown task type");
+            }
         };
         if (taskFields[1].equals("1")) {
             task.markAsDone();
