@@ -183,11 +183,12 @@ public class Parser {
      */
     private int findMarker(String text, String marker) {
         for (int i = 0; i <= text.length() - marker.length(); i++) {
-            boolean markerMatches = text.regionMatches(true, i, marker, 0, marker.length());
-            boolean validStart = i == 0 || Character.isWhitespace(text.charAt(i - 1));
-            int afterMarker = i + marker.length();
-            boolean validEnd = afterMarker == text.length() || Character.isWhitespace(text.charAt(afterMarker));
-            if (markerMatches && validStart && validEnd) {
+            boolean isMarkerMatch = text.regionMatches(true, i, marker, 0, marker.length());
+            boolean isStartBoundary = i == 0 || Character.isWhitespace(text.charAt(i - 1));
+            int markerEndIndex = i + marker.length();
+            boolean isEndBoundary = markerEndIndex == text.length()
+                    || Character.isWhitespace(text.charAt(markerEndIndex));
+            if (isMarkerMatch && isStartBoundary && isEndBoundary) {
                 return i;
             }
         }

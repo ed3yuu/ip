@@ -334,4 +334,28 @@ public class ParserTest {
 
         assertEquals("An event needs an end time after /to.", exception.getMessage());
     }
+
+    @Test
+    public void parseMarkers_markerIsPrefixOfWord_rejectsIncompleteCommands() {
+        LobbyException deadlineError = assertThrows(LobbyException.class, () ->
+                parser.parseDeadline("deadline report /bypass 2026-09-30"));
+        LobbyException eventStartError = assertThrows(LobbyException.class, () ->
+                parser.parseEvent("event meeting /fromage 2pm /to 3pm"));
+        LobbyException eventEndError = assertThrows(LobbyException.class, () ->
+                parser.parseEvent("event meeting /from 2pm /tomorrow 3pm"));
+
+        assertEquals("A deadline needs a /by time. Try: deadline <description> /by <when>.",
+                deadlineError.getMessage());
+        assertEquals("An event needs a /from start time. Try: event <description> /from <start> /to <end>.",
+                eventStartError.getMessage());
+        assertEquals("An event needs a /to end time. Try: event <description> /from <start> /to <end>.",
+                eventEndError.getMessage());
+    }
+
+    @Test
+    public void parseEvent_tabBoundariesAndMixedCaseMarkers_acceptsMarkers() throws LobbyException {
+        Event event = parser.parseEvent("event meeting\t/FrOm\t2pm\t/tO\t3pm");
+
+        assertEquals("E | 0 | meeting | 2pm | 3pm", event.toDataString());
+    }
 }
