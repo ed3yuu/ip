@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 public class TaskListTest {
 
     /**
-     * Verifies that construction makes a defensive copy of the source list.
+     * Verifies that find preserves the original order of matching tasks.
      */
     @Test
     public void find_keywordInDescriptions_returnsMatchingTasksInOriginalOrder() {

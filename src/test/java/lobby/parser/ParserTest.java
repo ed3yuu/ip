@@ -54,7 +54,7 @@ public class ParserTest {
     }
 
     /**
-     * Verifies that task-number arguments are parsed as integers.
+     * Verifies that find preserves multiword keywords and trims surrounding whitespace.
      *
      * @throws LobbyException if a tested command unexpectedly fails validation
      */

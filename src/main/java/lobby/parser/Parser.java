@@ -34,6 +34,7 @@ public class Parser {
         EVENT,
         /** Removes a task. */
         DELETE,
+        /** Finds tasks by a keyword in their descriptions. */
         FIND,
         /** Represents input that does not match a supported command. */
         UNKNOWN
@@ -81,7 +82,7 @@ public class Parser {
     /**
      * Reads and validates the keyword following the {@code find} command.
      *
-     * @param command the complete command entered by the user
+     * @param command the complete command entered by the user.
      * @return the keyword to search for
      * @throws LobbyException if no keyword was provided
      */
