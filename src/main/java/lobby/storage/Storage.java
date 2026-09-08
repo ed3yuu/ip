@@ -19,6 +19,16 @@ import lobby.task.Todo;
  * Loads tasks from a file and saves the current task list back to that file.
  */
 public class Storage {
+    private static final int FIELD_TYPE = 0;
+    private static final int FIELD_STATUS = 1;
+    private static final int FIELD_DESCRIPTION = 2;
+    private static final int FIELD_DEADLINE_DATE = 3;
+    private static final int FIELD_EVENT_START = 3;
+    private static final int FIELD_EVENT_END = 4;
+    private static final int FIELD_COUNT_TODO = 3;
+    private static final int FIELD_COUNT_DEADLINE = 4;
+    private static final int FIELD_COUNT_EVENT = 5;
+
     private final Path filePath;
 
     /**
@@ -134,34 +144,54 @@ public class Storage {
      * @return the reconstructed task
      */
     private Task createTaskFromData(String[] taskFields) {
-        if (taskFields.length < 2 || (!taskFields[1].equals("0") && !taskFields[1].equals("1"))) {
+        boolean isDone = parseCompletionStatus(taskFields);
+        validateTaskFields(taskFields);
+
+        String description = taskFields[FIELD_DESCRIPTION];
+        Task task = switch (taskFields[FIELD_TYPE]) {
+            case "T" -> new Todo(description);
+            case "D" -> new Deadline(description, LocalDate.parse(taskFields[FIELD_DEADLINE_DATE]));
+            case "E" -> new Event(description, taskFields[FIELD_EVENT_START], taskFields[FIELD_EVENT_END]);
+            default -> throw new IllegalArgumentException("Unknown task type");
+        };
+        if (isDone) {
+            task.markAsDone();
+        }
+        return task;
+    }
+
+    /**
+     * Reads a saved completion flag, rejecting missing or unsupported status values.
+     */
+    private boolean parseCompletionStatus(String[] taskFields) {
+        if (taskFields.length <= FIELD_STATUS) {
             throw new IllegalArgumentException("Invalid task status");
         }
+        return switch (taskFields[FIELD_STATUS]) {
+            case "0" -> false;
+            case "1" -> true;
+            default -> throw new IllegalArgumentException("Invalid task status");
+        };
+    }
 
-        int expectedFieldCount = switch (taskFields[0]) {
-            case "T" -> 3;
-            case "D" -> 4;
-            case "E" -> 5;
+    /**
+     * Checks that a record has the required nonblank fields for its task type.
+     * The completion flag must be validated before calling this method.
+     */
+    private void validateTaskFields(String[] taskFields) {
+        int expectedFieldCount = switch (taskFields[FIELD_TYPE]) {
+            case "T" -> FIELD_COUNT_TODO;
+            case "D" -> FIELD_COUNT_DEADLINE;
+            case "E" -> FIELD_COUNT_EVENT;
             default -> throw new IllegalArgumentException("Unknown task type");
         };
         if (taskFields.length != expectedFieldCount) {
             throw new IllegalArgumentException("Incorrect number of task fields");
         }
-        for (int i = 2; i < taskFields.length; i++) {
+        for (int i = FIELD_DESCRIPTION; i < taskFields.length; i++) {
             if (taskFields[i].isBlank()) {
                 throw new IllegalArgumentException("Task fields cannot be blank");
             }
         }
-
-        Task task = switch (taskFields[0]) {
-            case "T" -> new Todo(taskFields[2]);
-            case "D" -> new Deadline(taskFields[2], LocalDate.parse(taskFields[3]));
-            case "E" -> new Event(taskFields[2], taskFields[3], taskFields[4]);
-            default -> throw new IllegalArgumentException("Unknown task type");
-        };
-        if (taskFields[1].equals("1")) {
-            task.markAsDone();
-        }
-        return task;
     }
 }
