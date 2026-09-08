@@ -151,4 +151,21 @@ public class StorageTest {
         assertEquals(1, result.tasks().size());
         assertEquals("T | 1 | valid task after malformed records", result.tasks().get(0).toDataString());
     }
+
+    @Test
+    public void load_invalidDeadlineDates_recoversSurroundingValidTasks() throws IOException {
+        Path saveFile = temporaryDirectory.resolve("lobby.txt");
+        Files.write(saveFile, List.of(
+                "T | 0 | before invalid dates",
+                "D | 0 | impossible date | 2025-02-29",
+                "D | 1 | wrong format | 30-09-2026",
+                "D | 1 | valid leap day | 2024-02-29"));
+
+        Storage.LoadResult result = new Storage(saveFile.toString()).load();
+
+        assertFalse(result.readFailed());
+        assertEquals(2, result.skippedLines());
+        assertEquals(List.of("T | 0 | before invalid dates", "D | 1 | valid leap day | 2024-02-29"),
+                result.tasks().stream().map(Task::toDataString).toList());
+    }
 }

@@ -215,7 +215,7 @@ This file is the source of truth for console UI test cases. Add one section per 
 
 ### UI-007 Recover valid tasks from a partially corrupted save file
 
-- Aim: Verify that blank and malformed records are skipped while valid escaped fields, task types, and completion states still load.
+- Aim: Verify that blank and malformed records, including invalid deadline dates, are skipped while valid escaped fields, task types, and completion states still load.
 - Command: `java -cp out lobby.Lobby`
 - Inputs, in order:
   1. `list`
@@ -233,7 +233,7 @@ This file is the source of truth for console UI test cases. Add one section per 
   Hello! I'm Lobby.
   What can I do for you?
   ____________________________________________________________
-   I skipped 5 invalid lines while loading data/lobby.txt.
+   I skipped 7 invalid lines while loading data/lobby.txt.
   ____________________________________________________________
   ____________________________________________________________
    Here are the tasks in your list:
@@ -263,6 +263,8 @@ This file is the source of truth for console UI test cases. Add one section per 
      E | 0 | blank end | Mon |
      X | 0 | unknown type
      T | 0 | too | many fields
+     D | 0 | impossible date | 2025-02-29
+     D | 1 | wrong format | 30-09-2026
      ```
 
 ### UI-008 Roll back a task when saving fails

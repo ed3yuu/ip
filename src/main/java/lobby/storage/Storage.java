@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,7 +71,7 @@ public class Storage {
                 }
                 try {
                     tasks.add(createTaskFromData(parseDataFields(taskLine)));
-                } catch (IllegalArgumentException e) {
+                } catch (IllegalArgumentException | DateTimeParseException e) {
                     skippedLines++;
                 }
             }
