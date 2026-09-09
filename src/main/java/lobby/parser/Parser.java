@@ -34,6 +34,7 @@ public class Parser {
         EVENT,
         /** Removes a task. */
         DELETE,
+        /** Finds tasks by a keyword in their descriptions. */
         FIND,
         /** Represents input that does not match a supported command. */
         UNKNOWN
@@ -81,7 +82,7 @@ public class Parser {
     /**
      * Reads and validates the keyword following the {@code find} command.
      *
-     * @param command the complete command entered by the user
+     * @param command the complete command entered by the user.
      * @return the keyword to search for
      * @throws LobbyException if no keyword was provided
      */
@@ -185,11 +186,12 @@ public class Parser {
         // Callers supply fixed command markers; an empty marker would incorrectly match a boundary.
         assert marker != null && !marker.isEmpty() : "A command marker must be non-null and non-empty";
         for (int i = 0; i <= text.length() - marker.length(); i++) {
-            boolean markerMatches = text.regionMatches(true, i, marker, 0, marker.length());
-            boolean validStart = i == 0 || Character.isWhitespace(text.charAt(i - 1));
-            int afterMarker = i + marker.length();
-            boolean validEnd = afterMarker == text.length() || Character.isWhitespace(text.charAt(afterMarker));
-            if (markerMatches && validStart && validEnd) {
+            boolean isMarkerMatch = text.regionMatches(true, i, marker, 0, marker.length());
+            boolean isStartBoundary = i == 0 || Character.isWhitespace(text.charAt(i - 1));
+            int markerEndIndex = i + marker.length();
+            boolean isEndBoundary = markerEndIndex == text.length()
+                    || Character.isWhitespace(text.charAt(markerEndIndex));
+            if (isMarkerMatch && isStartBoundary && isEndBoundary) {
                 return i;
             }
         }

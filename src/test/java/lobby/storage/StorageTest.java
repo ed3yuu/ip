@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -111,5 +112,60 @@ public class StorageTest {
                 assertTrue(result.readFailed()), () ->
                 assertTrue(result.tasks().isEmpty()), () ->
                 assertEquals(0, result.skippedLines()));
+    }
+
+    @Test
+    public void load_eachTaskLayoutAndStatus_preservesStoredFields() throws IOException {
+        Path saveFile = temporaryDirectory.resolve("lobby.txt");
+        List<String> records = List.of(
+                "T | 0 | incomplete todo", "T | 1 | completed todo",
+                "D | 0 | incomplete deadline | 2026-09-30", "D | 1 | completed deadline | 2024-02-29",
+                "E | 0 | incomplete event | Monday | Tuesday", "E | 1 | completed event | 2pm | 3pm");
+        Files.write(saveFile, records);
+
+        Storage.LoadResult result = new Storage(saveFile.toString()).load();
+
+        assertFalse(result.readFailed());
+        assertEquals(0, result.skippedLines());
+        assertEquals(records, result.tasks().stream().map(Task::toDataString).toList());
+    }
+
+    @Test
+    public void load_missingExtraOrBlankFields_skipsOnlyInvalidRecords() throws IOException {
+        Path saveFile = temporaryDirectory.resolve("lobby.txt");
+        List<String> invalidRecords = List.of(
+                "T", "T |", "T | 2 | invalid status", "X | 0 | unknown type",
+                "T | 0", "D | 0 | missing date", "E | 0 | missing end | start",
+                "T | 0 | todo | extra", "D | 0 | deadline | 2026-09-30 | extra",
+                "E | 0 | event | start | end | extra",
+                "T | 0 | ", "D | 0 | | 2026-09-30", "D | 0 | deadline | ",
+                "E | 0 | | start | end", "E | 0 | event | | end", "E | 0 | event | start | ");
+        List<String> records = new ArrayList<>(invalidRecords);
+        records.add("T | 1 | valid task after malformed records");
+        Files.write(saveFile, records);
+
+        Storage.LoadResult result = new Storage(saveFile.toString()).load();
+
+        assertFalse(result.readFailed());
+        assertEquals(invalidRecords.size(), result.skippedLines());
+        assertEquals(1, result.tasks().size());
+        assertEquals("T | 1 | valid task after malformed records", result.tasks().get(0).toDataString());
+    }
+
+    @Test
+    public void load_invalidDeadlineDates_recoversSurroundingValidTasks() throws IOException {
+        Path saveFile = temporaryDirectory.resolve("lobby.txt");
+        Files.write(saveFile, List.of(
+                "T | 0 | before invalid dates",
+                "D | 0 | impossible date | 2025-02-29",
+                "D | 1 | wrong format | 30-09-2026",
+                "D | 1 | valid leap day | 2024-02-29"));
+
+        Storage.LoadResult result = new Storage(saveFile.toString()).load();
+
+        assertFalse(result.readFailed());
+        assertEquals(2, result.skippedLines());
+        assertEquals(List.of("T | 0 | before invalid dates", "D | 1 | valid leap day | 2024-02-29"),
+                result.tasks().stream().map(Task::toDataString).toList());
     }
 }

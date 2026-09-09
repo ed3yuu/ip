@@ -5,11 +5,8 @@ import java.io.IOException;
 import lobby.exception.LobbyException;
 import lobby.parser.Parser;
 import lobby.storage.Storage;
-import lobby.task.Deadline;
-import lobby.task.Event;
 import lobby.task.Task;
 import lobby.task.TaskList;
-import lobby.task.Todo;
 import lobby.ui.ResponseFormatter;
 import lobby.ui.Ui;
 
@@ -66,18 +63,22 @@ public class Lobby {
      */
     public String getResponse(String command) {
         String normalizedCommand = command.trim();
-        return switch (parser.parseCommand(normalizedCommand)) {
-            case BYE -> " Bye. Hope to see you again soon!";
-            case LIST -> responseFormatter.formatTaskList(" Here are the tasks in your list:", tasks);
-            case FIND -> handleFind(normalizedCommand);
-            case MARK -> handleTaskCompletion(normalizedCommand, true);
-            case UNMARK -> handleTaskCompletion(normalizedCommand, false);
-            case TODO -> handleTodo(normalizedCommand);
-            case DEADLINE -> handleDeadline(normalizedCommand);
-            case EVENT -> handleEvent(normalizedCommand);
-            case DELETE -> handleDelete(normalizedCommand);
-            case UNKNOWN -> " Please use todo, deadline, event, list, find, mark, unmark, delete, or bye.";
-        };
+        try {
+            return switch (parser.parseCommand(normalizedCommand)) {
+                case BYE -> " Bye. Hope to see you again soon!";
+                case LIST -> responseFormatter.formatTaskList(" Here are the tasks in your list:", tasks);
+                case FIND -> handleFind(normalizedCommand);
+                case MARK -> handleTaskCompletion(normalizedCommand, true);
+                case UNMARK -> handleTaskCompletion(normalizedCommand, false);
+                case TODO -> addTask(parser.parseTodo(normalizedCommand));
+                case DEADLINE -> addTask(parser.parseDeadline(normalizedCommand));
+                case EVENT -> addTask(parser.parseEvent(normalizedCommand));
+                case DELETE -> handleDelete(normalizedCommand);
+                default -> " Please use todo, deadline, event, list, find, mark, unmark, delete, or bye.";
+            };
+        } catch (LobbyException e) {
+            return " " + e.getMessage();
+        }
     }
 
     /**
@@ -133,40 +134,41 @@ public class Lobby {
         }
     }
 
-    private String handleFind(String command) {
-        try {
-            String keyword = parser.parseFindKeyword(command);
-            return responseFormatter.formatTaskList(" Here are the matching tasks in your list:", tasks.find(keyword));
-        } catch (LobbyException e) {
-            return " " + e.getMessage();
-        }
+    /**
+     * Finds tasks matching the validated search keyword and formats the result.
+     */
+    private String handleFind(String command) throws LobbyException {
+        String keyword = parser.parseFindKeyword(command);
+        return responseFormatter.formatTaskList(" Here are the matching tasks in your list:", tasks.find(keyword));
     }
 
-    private String handleTaskCompletion(String command, boolean isMarkingDone) {
+    /**
+     * Updates and saves completion status, restoring the previous status if saving fails.
+     */
+    private String handleTaskCompletion(String command, boolean isMarkingDone) throws LobbyException {
         String commandWord = isMarkingDone ? "mark" : "unmark";
-        try {
-            int taskNumber = parser.parseTaskNumber(command, commandWord);
-            if (!tasks.containsTaskNumber(taskNumber)) {
-                return " Please enter the number of a task in the list.";
-            }
-
-            Task task = tasks.get(taskNumber);
-            boolean wasDone = task.isDone();
-            if (isMarkingDone) {
-                tasks.mark(taskNumber);
-            } else {
-                tasks.unmark(taskNumber);
-            }
-            if (!trySaveTasks()) {
-                restoreCompletion(taskNumber, wasDone);
-                return getSaveErrorMessage();
-            }
-            return isMarkingDone
-                    ? responseFormatter.formatTaskMarked(task)
-                    : responseFormatter.formatTaskUnmarked(task);
-        } catch (LobbyException e) {
-            return " " + e.getMessage();
+        int taskNumber = parseExistingTaskNumber(command, commandWord);
+        Task task = tasks.get(taskNumber);
+        boolean wasDone = task.isDone();
+        setTaskCompletion(taskNumber, isMarkingDone);
+        if (!trySaveTasks()) {
+            setTaskCompletion(taskNumber, wasDone);
+            return getSaveErrorMessage();
         }
+        return isMarkingDone
+                ? responseFormatter.formatTaskMarked(task)
+                : responseFormatter.formatTaskUnmarked(task);
+    }
+
+    /**
+     * Reads a task number and rejects numbers outside the current list.
+     */
+    private int parseExistingTaskNumber(String command, String commandWord) throws LobbyException {
+        int taskNumber = parser.parseTaskNumber(command, commandWord);
+        if (!tasks.containsTaskNumber(taskNumber)) {
+            throw new LobbyException("Please enter the number of a task in the list.");
+        }
+        return taskNumber;
     }
 
     /**
@@ -183,34 +185,20 @@ public class Lobby {
         // A failed save must leave the in-memory completion state as it was before the command.
         assert tasks.get(taskNumber).isDone() == wasDone : "Completion rollback must restore the original state";
     }
-
-    private String handleTodo(String command) {
-        try {
-            Todo todo = parser.parseTodo(command);
-            return addTask(todo);
-        } catch (LobbyException e) {
-            return " " + e.getMessage();
+    /**
+     * Sets completion status for either a user command or a rollback.
+     */
+    private void setTaskCompletion(int taskNumber, boolean isDone) {
+        if (isDone) {
+            tasks.mark(taskNumber);
+        } else {
+            tasks.unmark(taskNumber);
         }
     }
 
-    private String handleDeadline(String command) {
-        try {
-            Deadline deadline = parser.parseDeadline(command);
-            return addTask(deadline);
-        } catch (LobbyException e) {
-            return " " + e.getMessage();
-        }
-    }
-
-    private String handleEvent(String command) {
-        try {
-            Event event = parser.parseEvent(command);
-            return addTask(event);
-        } catch (LobbyException e) {
-            return " " + e.getMessage();
-        }
-    }
-
+    /**
+     * Adds and saves a task, removing it again if saving fails.
+     */
     private String addTask(Task task) {
         int originalSize = tasks.size();
         tasks.add(task);
@@ -225,24 +213,19 @@ public class Lobby {
         return responseFormatter.formatTaskAdded(task, tasks.size());
     }
 
-    private String handleDelete(String command) {
-        try {
-            int taskNumber = parser.parseTaskNumber(command, "delete");
-            if (!tasks.containsTaskNumber(taskNumber)) {
-                return " Please enter the number of a task in the list.";
-            }
-
-            Task removedTask = tasks.delete(taskNumber);
-            if (!trySaveTasks()) {
-                tasks.add(taskNumber, removedTask);
-                // Restoring the same object at its old position preserves task numbering and completion state.
-                assert tasks.get(taskNumber) == removedTask : "Delete rollback must restore the original task position";
-                return getSaveErrorMessage();
-            }
-            return responseFormatter.formatTaskDeleted(removedTask, tasks.size());
-        } catch (LobbyException e) {
-            return " " + e.getMessage();
+    /**
+     * Deletes and saves a task, restoring its original position if saving fails.
+     */
+    private String handleDelete(String command) throws LobbyException {
+        int taskNumber = parseExistingTaskNumber(command, "delete");
+        Task removedTask = tasks.delete(taskNumber);
+        if (!trySaveTasks()) {
+            tasks.add(taskNumber, removedTask);
+            // Restoring the same object at its old position preserves task numbering and completion state.
+            assert tasks.get(taskNumber) == removedTask : "Delete rollback must restore the original task position";
+            return getSaveErrorMessage();
         }
+        return responseFormatter.formatTaskDeleted(removedTask, tasks.size());
     }
 
     private String getSaveErrorMessage() {
