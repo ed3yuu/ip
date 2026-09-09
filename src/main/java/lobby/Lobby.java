@@ -121,7 +121,7 @@ public class Lobby {
     }
 
     /**
-     * Attempts to save a mutation so the caller can decide whether to roll it back.
+     * Attempts to save a mutation and reports a recoverable error to the user.
      *
      * @return {@code true} when the save succeeded
      */
@@ -172,6 +172,20 @@ public class Lobby {
     }
 
     /**
+     * Restores the completion state after a failed save without changing the task list.
+     */
+    private void restoreCompletion(int taskNumber, boolean wasDone) {
+        // Completion changes never remove tasks, so the previously validated number must still exist.
+        assert tasks.containsTaskNumber(taskNumber) : "The task being restored must still exist";
+        if (wasDone) {
+            tasks.mark(taskNumber);
+        } else {
+            tasks.unmark(taskNumber);
+        }
+        // A failed save must leave the in-memory completion state as it was before the command.
+        assert tasks.get(taskNumber).isDone() == wasDone : "Completion rollback must restore the original state";
+    }
+    /**
      * Sets completion status for either a user command or a rollback.
      */
     private void setTaskCompletion(int taskNumber, boolean isDone) {
@@ -186,9 +200,14 @@ public class Lobby {
      * Adds and saves a task, removing it again if saving fails.
      */
     private String addTask(Task task) {
+        int originalSize = tasks.size();
         tasks.add(task);
         if (!trySaveTasks()) {
+            // Rollback removes the last task, which must be the exact object this command appended.
+            assert tasks.get(tasks.size()) == task : "The unsaved task must remain at the end of the list";
             tasks.delete(tasks.size());
+            // Rejecting an addition must restore the task count seen before the command.
+            assert tasks.size() == originalSize : "Add rollback must restore the original task count";
             return getSaveErrorMessage();
         }
         return responseFormatter.formatTaskAdded(task, tasks.size());
@@ -202,6 +221,8 @@ public class Lobby {
         Task removedTask = tasks.delete(taskNumber);
         if (!trySaveTasks()) {
             tasks.add(taskNumber, removedTask);
+            // Restoring the same object at its old position preserves task numbering and completion state.
+            assert tasks.get(taskNumber) == removedTask : "Delete rollback must restore the original task position";
             return getSaveErrorMessage();
         }
         return responseFormatter.formatTaskDeleted(removedTask, tasks.size());

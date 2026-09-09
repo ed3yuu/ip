@@ -183,6 +183,8 @@ public class Parser {
      * @return the marker's starting index, or {@code -1} if it is absent
      */
     private int findMarker(String text, String marker) {
+        // Callers supply fixed command markers; an empty marker would incorrectly match a boundary.
+        assert marker != null && !marker.isEmpty() : "A command marker must be non-null and non-empty";
         for (int i = 0; i <= text.length() - marker.length(); i++) {
             boolean isMarkerMatch = text.regionMatches(true, i, marker, 0, marker.length());
             boolean isStartBoundary = i == 0 || Character.isWhitespace(text.charAt(i - 1));

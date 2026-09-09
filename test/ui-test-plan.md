@@ -15,7 +15,7 @@ This file is the source of truth for console UI test cases. Add one section per 
 ### UI-001 Add and list every task type
 
 - Aim: Verify that to-dos, deadlines, and events are stored and displayed with their type-specific details. Deadline dates must be accepted in `yyyy-MM-dd` format and displayed as `MMM dd yyyy`.
-- Command: `java -cp out lobby.Lobby`
+- Command: `java -ea -cp out lobby.Lobby`
 - Inputs, in order:
   1. `todo borrow book`
   2. `deadline do homework /by 2019-10-15`
@@ -79,7 +79,7 @@ This file is the source of truth for console UI test cases. Add one section per 
 ### UI-002 Reject a to-do without a description
 
 - Aim: Verify that a command beginning with `todo` but missing its description shows a helpful error and does not add a task.
-- Command: `java -cp out lobby.Lobby`
+- Command: `java -ea -cp out lobby.Lobby`
 - Inputs, in order:
   1. `todo`
   2. `list`
@@ -114,7 +114,7 @@ This file is the source of truth for console UI test cases. Add one section per 
 ### UI-005 Save the result of every task-list mutation
 
 - Aim: Verify that successful add, mark, unmark, and delete commands leave the save file matching the final task list.
-- Command: `java -cp out lobby.Lobby`
+- Command: `java -ea -cp out lobby.Lobby`
 - Inputs, in order:
   1. `todo first task`
   2. `mark 1`
@@ -174,7 +174,7 @@ This file is the source of truth for console UI test cases. Add one section per 
 ### UI-006 Load saved tasks on startup
 
 - Aim: Verify that all task types and their completion states are restored from the save file when Lobby starts.
-- Command: `java -cp out lobby.Lobby`
+- Command: `java -ea -cp out lobby.Lobby`
 - Inputs, in order:
   1. `list`
   2. `bye`
@@ -216,7 +216,7 @@ This file is the source of truth for console UI test cases. Add one section per 
 ### UI-007 Recover valid tasks from a partially corrupted save file
 
 - Aim: Verify that blank and malformed records, including invalid deadline dates, are skipped while valid escaped fields, task types, and completion states still load.
-- Command: `java -cp out lobby.Lobby`
+- Command: `java -ea -cp out lobby.Lobby`
 - Inputs, in order:
   1. `list`
   2. `bye`
@@ -270,7 +270,7 @@ This file is the source of truth for console UI test cases. Add one section per 
 ### UI-008 Roll back a task when saving fails
 
 - Aim: Verify that a failed write reports a helpful error, keeps the chatbot running, and does not retain the unsaved task in memory.
-- Command: `java -cp out lobby.Lobby`
+- Command: `java -ea -cp out lobby.Lobby`
 - Inputs, in order:
   1. `todo cannot save`
   2. `list`
@@ -307,7 +307,7 @@ This file is the source of truth for console UI test cases. Add one section per 
 ### UI-009 Recover when the save path cannot be read
 
 - Aim: Verify that an unreadable save path reports a helpful warning and starts with an empty task list instead of crashing.
-- Command: `java -cp out lobby.Lobby`
+- Command: `java -ea -cp out lobby.Lobby`
 - Inputs, in order:
   1. `list`
   2. `bye`
@@ -342,7 +342,7 @@ This file is the source of truth for console UI test cases. Add one section per 
 ### UI-010 Escape storage separators and backslashes
 
 - Aim: Verify that literal pipe and backslash characters in a task description are escaped in the save file without changing the displayed task.
-- Command: `java -cp out lobby.Lobby`
+- Command: `java -ea -cp out lobby.Lobby`
 - Inputs, in order:
   1. `todo use A | B \ C`
   2. `bye`
@@ -380,7 +380,7 @@ This file is the source of truth for console UI test cases. Add one section per 
 ### UI-011 Exit cleanly at end of input
 
 - Aim: Verify that Lobby shows its normal farewell instead of throwing when the input stream ends without a `bye` command.
-- Command: `java -cp out lobby.Lobby`
+- Command: `java -ea -cp out lobby.Lobby`
 - Inputs, in order:
   1. `list`
   2. End the input stream.
@@ -411,7 +411,7 @@ This file is the source of truth for console UI test cases. Add one section per 
 ### UI-012 Start when the data folder and file do not exist
 
 - Aim: Verify that a first run starts with an empty task list and creates both `data` and `data/lobby.txt` when the first task is added.
-- Command: `java -cp out lobby.Lobby`
+- Command: `java -ea -cp out lobby.Lobby`
 - Inputs, in order:
   1. `list`
   2. `todo first run`
@@ -455,7 +455,7 @@ This file is the source of truth for console UI test cases. Add one section per 
 ### UI-004 Reject malformed event commands
 
 - Aim: Verify that event commands report specific missing parts and do not add an incomplete task.
-- Command: `java -cp out lobby.Lobby`
+- Command: `java -ea -cp out lobby.Lobby`
 - Inputs, in order:
   1. `event`
   2. `event /from Mon 2pm /to 4pm`
@@ -502,7 +502,7 @@ This file is the source of truth for console UI test cases. Add one section per 
 ### UI-003 Reject malformed deadline commands
 
 - Aim: Verify that deadline commands report specific missing parts and do not add an incomplete task.
-- Command: `java -cp out lobby.Lobby`
+- Command: `java -ea -cp out lobby.Lobby`
 - Inputs, in order:
   1. `deadline`
   2. `deadline /by Monday`
@@ -549,7 +549,7 @@ This file is the source of truth for console UI test cases. Add one section per 
 ### UI-013 Find tasks by a keyword in their descriptions
 
 - Aim: Verify that `find` displays only tasks whose descriptions contain the keyword, preserves their order, and rejects a missing keyword.
-- Command: `java -cp out lobby.Lobby`
+- Command: `java -ea -cp out lobby.Lobby`
 - Inputs, in order:
   1. `find book`
   2. `find`
