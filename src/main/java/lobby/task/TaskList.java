@@ -105,9 +105,10 @@ public class TaskList {
 
     /**
      * Finds tasks whose descriptions contain the given keyword.
-     * The original ordering is preserved in the returned task list.
+     * Matching is case-sensitive. The returned list preserves the original order
+     * and shares the matching task objects with this list.
      *
-     * @param keyword text to search for in task descriptions
+     * @param keyword text to search for in task descriptions.
      * @return a new task list containing all matching tasks
      */
     public TaskList find(String keyword) {
@@ -127,7 +128,8 @@ public class TaskList {
     }
 
     /**
-     * Returns an immutable snapshot for display or persistence.
+     * Returns an unmodifiable snapshot of the task references for display or persistence.
+     * Later additions and deletions do not affect the snapshot, but the task objects remain shared and mutable.
      *
      * @return snapshot of the tasks in their current order
      */

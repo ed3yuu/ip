@@ -2,9 +2,6 @@ package lobby.ui;
 
 import java.util.Scanner;
 
-import lobby.task.Task;
-import lobby.task.TaskList;
-
 /**
  * Handles all text-based interactions between Lobby and the user.
  */
@@ -70,90 +67,6 @@ public class Ui {
     }
 
     /**
-     * Shows all tasks with one-based numbering.
-     *
-     * @param tasks tasks to display.
-     */
-    public void showTaskList(TaskList tasks) {
-        System.out.println(" Here are the tasks in your list:");
-        showNumberedTasks(tasks);
-    }
-
-    /**
-     * Shows tasks whose descriptions matched a find command.
-     *
-     * @param matchingTasks tasks that matched the search keyword
-     */
-    public void showMatchingTasks(TaskList matchingTasks) {
-        System.out.println(" Here are the matching tasks in your list:");
-        showNumberedTasks(matchingTasks);
-    }
-
-    /**
-     * Shows tasks with one-based numbering.
-     *
-     * @param tasks tasks to display
-     */
-    private void showNumberedTasks(TaskList tasks) {
-        for (int taskNumber = 1; taskNumber <= tasks.size(); taskNumber++) {
-            System.out.println(" " + taskNumber + "." + tasks.get(taskNumber));
-        }
-    }
-
-    /**
-     * Shows a successful task addition and the new list size.
-     *
-     * @param task the task that was added.
-     * @param taskCount the number of tasks after the addition.
-     */
-    public void showTaskAdded(Task task, int taskCount) {
-        System.out.println(" Got it. I've added this task:");
-        System.out.println("   " + task);
-        showTaskCount(taskCount);
-    }
-
-    /**
-     * Shows a successful task deletion and the new list size.
-     *
-     * @param task the task that was removed.
-     * @param taskCount the number of tasks after the deletion.
-     */
-    public void showTaskDeleted(Task task, int taskCount) {
-        System.out.println(" Noted. I've removed this task:");
-        System.out.println("   " + task);
-        showTaskCount(taskCount);
-    }
-
-    /**
-     * Shows that a task was marked as completed.
-     *
-     * @param task the updated task.
-     */
-    public void showTaskMarked(Task task) {
-        System.out.println(" Nice! I've marked this task as done:");
-        System.out.println("   " + task);
-    }
-
-    /**
-     * Shows that a task was marked as incomplete.
-     *
-     * @param task the updated task.
-     */
-    public void showTaskUnmarked(Task task) {
-        System.out.println(" OK, I've marked this task as not done yet:");
-        System.out.println("   " + task);
-    }
-
-    /**
-     * Shows a recoverable error or validation message.
-     *
-     * @param message explanation to show to the user.
-     */
-    public void showError(String message) {
-        System.out.println(" " + message);
-    }
-
-    /**
      * Shows a warning that malformed saved records were ignored.
      *
      * @param skippedLines number of invalid records.
@@ -179,15 +92,5 @@ public class Ui {
     public void showFarewell() {
         System.out.println(" Bye. Hope to see you again soon!");
         endResponse();
-    }
-
-    /**
-     * Shows the list size with the correct singular or plural noun.
-     *
-     * @param taskCount current number of tasks.
-     */
-    private void showTaskCount(int taskCount) {
-        String taskWord = taskCount == 1 ? "task" : "tasks";
-        System.out.println(" Now you have " + taskCount + " " + taskWord + " in the list.");
     }
 }
