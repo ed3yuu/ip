@@ -9,6 +9,7 @@ import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import lobby.task.Deadline;
@@ -189,10 +190,8 @@ public class Storage {
         if (taskFields.length != expectedFieldCount) {
             throw new IllegalArgumentException("Incorrect number of task fields");
         }
-        for (int i = FIELD_DESCRIPTION; i < taskFields.length; i++) {
-            if (taskFields[i].isBlank()) {
-                throw new IllegalArgumentException("Task fields cannot be blank");
-            }
+        if (Arrays.stream(taskFields, FIELD_DESCRIPTION, taskFields.length).anyMatch(String::isBlank)) {
+            throw new IllegalArgumentException("Task fields cannot be blank");
         }
     }
 }

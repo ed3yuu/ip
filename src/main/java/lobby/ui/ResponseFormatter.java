@@ -1,5 +1,8 @@
 package lobby.ui;
 
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 import lobby.task.Task;
 import lobby.task.TaskList;
 
@@ -16,15 +19,9 @@ public class ResponseFormatter {
      * @return the formatted response
      */
     public String formatTaskList(String introduction, TaskList tasks) {
-        StringBuilder response = new StringBuilder(introduction);
-        for (int taskNumber = 1; taskNumber <= tasks.size(); taskNumber++) {
-            response.append(System.lineSeparator())
-                    .append(" ")
-                    .append(taskNumber)
-                    .append(".")
-                    .append(tasks.get(taskNumber));
-        }
-        return response.toString();
+        return introduction + IntStream.rangeClosed(1, tasks.size())
+                .mapToObj(taskNumber -> System.lineSeparator() + " " + taskNumber + "." + tasks.get(taskNumber))
+                .collect(Collectors.joining());
     }
 
     /**

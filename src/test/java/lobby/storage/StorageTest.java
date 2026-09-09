@@ -100,6 +100,33 @@ public class StorageTest {
     }
 
     /**
+     * Verifies that every required description or time field rejects blank content.
+     *
+     * @throws IOException if the temporary test file cannot be written or read
+     */
+    @Test
+    public void load_blankFieldsInEveryPosition_skipsInvalidTasks() throws IOException {
+        Path saveFile = temporaryDirectory.resolve("lobby.txt");
+        Files.write(saveFile, List.of(
+                "T | 0 | ",
+                "D | 0 | \t | 2026-09-30",
+                "D | 0 | report | ",
+                "E | 0 | | Monday | Tuesday",
+                "E | 0 | meeting | \t | Tuesday",
+                "E | 0 | meeting | Monday | ",
+                "T | 1 | valid task"), StandardCharsets.UTF_8);
+        Storage storage = new Storage(saveFile.toString());
+
+        Storage.LoadResult result = storage.load();
+
+        assertAll(() ->
+                assertFalse(result.readFailed()), () ->
+                assertEquals(6, result.skippedLines()), () ->
+                assertEquals(1, result.tasks().size()), () ->
+                assertEquals("T | 1 | valid task", result.tasks().get(0).toDataString()));
+    }
+
+    /**
      * Verifies that attempting to load a directory is reported as a read failure.
      */
     @Test
