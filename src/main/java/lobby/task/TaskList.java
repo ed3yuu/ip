@@ -1,7 +1,9 @@
 package lobby.task;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Owns the in-memory task collection and provides operations on task numbers.
@@ -104,16 +106,16 @@ public class TaskList {
     }
 
     /**
-     * Finds tasks whose descriptions contain the given keyword.
-     * Matching is case-sensitive. The returned list preserves the original order
-     * and shares the matching task objects with this list.
+     * Finds tasks containing every whitespace-separated keyword, ignoring case and word order.
      *
      * @param keyword text to search for in task descriptions.
      * @return a new task list containing all matching tasks
      */
     public TaskList find(String keyword) {
+        String[] keywords = keyword.trim().toLowerCase(Locale.ROOT).split("\\s+");
         List<Task> matchingTasks = tasks.stream()
-                .filter(task -> task.getDescription().contains(keyword))
+                .filter(task -> Arrays.stream(keywords)
+                        .allMatch(word -> task.getDescription().toLowerCase(Locale.ROOT).contains(word)))
                 .toList();
         return new TaskList(matchingTasks);
     }

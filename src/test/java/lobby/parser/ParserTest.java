@@ -59,20 +59,26 @@ public class ParserTest {
      * @throws LobbyException if a tested command unexpectedly fails validation
      */
     @Test
-    public void parseFindKeyword_validCommand_returnsTrimmedKeyword() throws LobbyException {
-        assertEquals("read book", parser.parseFindKeyword("find   read book   "));
+    public void parseFind_validCommand_returnsTrimmedKeywords() throws LobbyException {
+        assertEquals("read book", parser.parseFind("find   read book   "));
     }
 
     @Test
-    public void parseFindKeyword_missingKeyword_exceptionThrown() {
+    public void parseFind_missingCriteria_exceptionThrown() {
         LobbyException exception = assertThrows(LobbyException.class, () ->
-                parser.parseFindKeyword("find   "));
+                parser.parseFind("find   "));
 
-        assertEquals("Please use find followed by a keyword.", exception.getMessage());
+        assertEquals("A search needs keywords. Try: find <keywords>.",
+                exception.getMessage());
     }
 
     @Test
-    public void parseTaskNumber_integerArgument_returnsInteger() throws LobbyException {
+    public void parseFind_statusText_preservesLiteralKeywords() throws LobbyException {
+        assertEquals("/status done", parser.parseFind("find /status done"));
+    }
+
+    @Test
+    public void parseTaskNumber_integerArgument_returnsInteger() {
         assertAll(() ->
                 assertEquals(3, parser.parseTaskNumber("mark 3", "mark")), () ->
                 assertEquals(0, parser.parseTaskNumber("delete   0  ", "delete")), () ->

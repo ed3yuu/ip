@@ -34,12 +34,43 @@ public class TaskListTest {
     }
 
     @Test
-    public void find_keywordCaseDoesNotMatch_returnsEmptyTaskList() {
+    public void find_keywordCaseDiffers_returnsMatchingTask() {
         TaskList taskList = new TaskList(List.of(new Todo("read book")));
 
         TaskList matches = taskList.find("Book");
 
-        assertEquals(0, matches.size());
+        assertEquals(1, matches.size());
+    }
+
+    @Test
+    public void find_multipleKeywords_requiresEveryPartialKeywordInAnyOrder() {
+        Task matchingTask = new Todo("Finish MARKING lab reports");
+        TaskList tasks = new TaskList(matchingTask, new Todo("prepare lab"), new Todo("marking essays"));
+
+        assertEquals(List.of(matchingTask), tasks.find("  LAB\tmark  ").asList());
+        assertEquals(0, tasks.find("lab missing").size());
+        assertEquals(0, new TaskList().find("lab").size());
+    }
+
+    @Test
+    public void find_keywords_matchesBothCompletionStatesWithoutChangingSourceTasks() {
+        Task completed = new Todo("mark lab");
+        completed.markAsDone();
+        Task pending = new Todo("prepare lab");
+        Task other = new Todo("buy book");
+        TaskList tasks = new TaskList(completed, pending, other);
+
+        assertEquals(List.of(completed, pending), tasks.find("LAB").asList());
+        assertEquals(List.of(completed, pending, other), tasks.asList());
+        assertTrue(completed.isDone());
+        assertFalse(pending.isDone());
+    }
+
+    @Test
+    public void find_dateOnlyInDeadlineDetails_doesNotMatchDescriptionSearch() {
+        TaskList tasks = new TaskList(new Deadline("return book", java.time.LocalDate.of(2026, 6, 6)));
+
+        assertEquals(0, tasks.find("2026").size());
     }
 
     @Test
