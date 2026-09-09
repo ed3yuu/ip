@@ -2,6 +2,42 @@
 
 This is a project template for a greenfield Java project. Given below are instructions on how to use it.
 
+## Continuous integration
+
+The workflow in [`.github/workflows/gradle.yml`](.github/workflows/gradle.yml) is based on
+the [SE-EDU Duke workflow](https://github.com/se-edu/duke/blob/full-template/.github/workflows/gradle.yml).
+It runs automatically on pushes and when pull requests are opened, reopened, or updated.
+
+Each run checks the project on Linux, macOS, and Windows. On each operating system, GitHub Actions:
+
+1. Checks out the repository so the runner can access the project files.
+2. Validates the Gradle Wrapper JAR against known Gradle releases.
+3. Installs Zulu JDK 25 with JavaFX.
+4. Runs `./gradlew check`, which compiles the code, runs all JUnit tests, and checks main and test code
+   with Checkstyle. A failed test, compilation error, or Checkstyle violation fails the check.
+
+To set this up in your own GitHub repository:
+
+1. Place the workflow file at `.github/workflows/gradle.yml`, relative to the project root.
+   Keep the indentation intact because YAML uses indentation to group settings.
+2. Check locally using Java 25: run `java -version`, then `./gradlew check` on macOS/Linux or
+   `.\gradlew.bat check` in Windows PowerShell.
+3. Commit and push the workflow file to your GitHub repository. If you authenticate over HTTPS with
+   a classic personal access token (PAT), it needs the `workflow` scope in addition to the repository
+   access needed to push. Configure the token in your Git client's authentication settings;
+   do not put it in the workflow file.
+4. Open the repository's **Actions** tab. If GitHub prompts you to enable workflows for a fork,
+   enable them, then push another change to trigger a run.
+5. Open **Java CI**, select the run, and inspect the three operating-system jobs. Green checks mean
+   they passed. For a failed job, expand the failed step to read its error output, fix the issue,
+   and push the correction to run CI again.
+
+The workflow uses read-only repository permissions and does not need a PAT stored as a repository
+secret. It checks code; it does not publish releases or deploy the application. Branch protection
+can be configured separately if passing CI should be required before merging.
+
+For more background, see the [SE-EDU GitHub Actions guide](https://se-education.org/guides/tutorials/githubActions.html).
+
 ## Setting up in Intellij
 
 Prerequisites: JDK 25, update Intellij to the most recent version.
