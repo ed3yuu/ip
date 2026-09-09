@@ -573,7 +573,7 @@ This file is the source of truth for console UI test cases. Add one section per 
    2.[D][ ] return book (by: Jun 06 2019)
   ____________________________________________________________
   ____________________________________________________________
-   Please use find followed by a keyword.
+   A search needs keywords. Try: find <keywords>.
   ____________________________________________________________
   ____________________________________________________________
    Bye. Hope to see you again soon!
@@ -590,3 +590,112 @@ This file is the source of truth for console UI test cases. Add one section per 
      D | 0 | return book | 2019-06-06
      T | 0 | buy groceries
      ```
+
+### UI-014 Search descriptions with multiple keywords
+
+- Aim: Verify case-insensitive partial keywords in any order, AND matching, both completion states, no matches, and unchanged task data.
+- Command: `java -ea -cp out lobby.Lobby`
+- Inputs, in order:
+  1. `find LAB mark`
+  2. `find lab`
+  3. `find lab essays`
+  4. `list`
+  5. `bye`
+- Expected output:
+
+  ```text
+  ____________________________________________________________
+   _           _     _
+  | |    ___  | |__ | |__  _   _
+  | |   / _ \ | '_ \| '_ \| | | |
+  | |__| (_) | |_) | |_) | |_| |
+  |_____\___/|_.__/|_.__/ \__, |
+                           |___/
+  Hello! I'm Lobby.
+  What can I do for you?
+  ____________________________________________________________
+  ____________________________________________________________
+   Here are the matching tasks in your list:
+   1.[T][X] Finish marking lab reports
+  ____________________________________________________________
+  ____________________________________________________________
+   Here are the matching tasks in your list:
+   1.[T][X] Finish marking lab reports
+   2.[D][ ] prepare lab (by: Jun 06 2019)
+  ____________________________________________________________
+  ____________________________________________________________
+   No matching tasks found.
+  ____________________________________________________________
+  ____________________________________________________________
+   Here are the tasks in your list:
+   1.[T][X] Finish marking lab reports
+   2.[D][ ] prepare lab (by: Jun 06 2019)
+   3.[T][ ] marking essays
+  ____________________________________________________________
+  ____________________________________________________________
+   Bye. Hope to see you again soon!
+  ____________________________________________________________
+  ```
+
+- Comparison rule: exact, after normalizing Windows line endings to `\n`.
+- Setup: Compile all files in `src/main/java` to the `out` folder with Java 25 before running the command.
+- Additional setup: Create `data/lobby.txt` with this exact UTF-8 content:
+
+     ```text
+     T | 1 | Finish marking lab reports
+     D | 0 | prepare lab | 2019-06-06
+     T | 0 | marking essays
+     ```
+- Expected saved file (`data/lobby.txt`), after normalizing line endings to `\n`:
+
+  ```text
+  T | 1 | Finish marking lab reports
+  D | 0 | prepare lab | 2019-06-06
+  T | 0 | marking essays
+  ```
+
+### UI-015 Treat former status syntax as literal search words
+
+- Aim: Verify searches on an empty list and confirm /status is ordinary description text with no completion filtering.
+- Command: `java -ea -cp out lobby.Lobby`
+- Inputs, in order:
+  1. `find lab`
+  2. `find /status done`
+  3. `todo check /status done endpoint`
+  4. `find /status done`
+  5. `bye`
+- Expected output:
+
+  ```text
+  ____________________________________________________________
+   _           _     _
+  | |    ___  | |__ | |__  _   _
+  | |   / _ \ | '_ \| '_ \| | | |
+  | |__| (_) | |_) | |_) | |_| |
+  |_____\___/|_.__/|_.__/ \__, |
+                           |___/
+  Hello! I'm Lobby.
+  What can I do for you?
+  ____________________________________________________________
+  ____________________________________________________________
+   No matching tasks found.
+  ____________________________________________________________
+  ____________________________________________________________
+   No matching tasks found.
+  ____________________________________________________________
+  ____________________________________________________________
+   Got it. I've added this task:
+     [T][ ] check /status done endpoint
+   Now you have 1 task in the list.
+  ____________________________________________________________
+  ____________________________________________________________
+   Here are the matching tasks in your list:
+   1.[T][ ] check /status done endpoint
+  ____________________________________________________________
+  ____________________________________________________________
+   Bye. Hope to see you again soon!
+  ____________________________________________________________
+  ```
+
+- Comparison rule: exact, after normalizing Windows line endings to `\n`.
+- Setup: Compile all files in `src/main/java` to the `out` folder with Java 25 before running the command.

@@ -2,6 +2,19 @@
 
 This is a project template for a greenfield Java project. Given below are instructions on how to use it.
 
+## Finding tasks
+
+Use `find <keywords>` to search task descriptions.
+Every keyword must appear somewhere in the description, ignoring letter case and keyword order.
+Partial words match too: `find LAB mark` matches `Finish marking lab reports`.
+
+- `find lab marking` finds descriptions containing both `lab` and `marking`.
+
+Searches include both completed and incomplete tasks. Dates and event times are not searched.
+If nothing matches, Lobby displays `No matching tasks found.`
+Search results keep their original order but are numbered from 1 within the results.
+Use `list` to check the full task numbers before using `mark`, `unmark`, or `delete`.
+
 ## Continuous integration
 
 The workflow in [`.github/workflows/gradle.yml`](.github/workflows/gradle.yml) is based on

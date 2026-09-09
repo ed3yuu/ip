@@ -57,7 +57,7 @@ public class LobbyTest {
             {"todo", "A to-do needs a description. Try: todo <description>."},
             {"deadline report /by", "A deadline needs a time after /by."},
             {"event meeting /from 2pm /to", "An event needs an end time after /to."},
-            {"find", "Please use find followed by a keyword."},
+            {"find", "A search needs keywords. Try: find <keywords>."},
             {"mark", "Please use mark followed by a task number."},
             {"unmark wrong", "Please use unmark followed by a task number."},
             {"delete 1.5", "Please use delete followed by a task number."},
@@ -70,6 +70,28 @@ public class LobbyTest {
             assertEquals(" " + invalidCommand[1], lobby.getResponse(invalidCommand[0]), invalidCommand[0]);
             assertEquals(emptyList, lobby.getResponse("list"));
         }
+    }
+
+    @Test
+    public void getResponse_search_filtersTasksAndLeavesSavedDataUnchanged() throws IOException {
+        Path saveFile = temporaryDirectory.resolve("lobby.txt");
+        Lobby lobby = new Lobby(saveFile.toString());
+        lobby.getResponse("todo Finish marking lab reports");
+        lobby.getResponse("todo prepare lab");
+        lobby.getResponse("mark 1");
+        String originalFile = Files.readString(saveFile);
+        String originalList = lobby.getResponse("list");
+        String heading = " Here are the matching tasks in your list:" + System.lineSeparator();
+
+        assertEquals(heading + " 1.[T][X] Finish marking lab reports",
+                lobby.getResponse("find LAB mark"));
+        assertEquals(heading + " 1.[T][ ] prepare lab", lobby.getResponse("find prepare"));
+        assertEquals(" No matching tasks found.", lobby.getResponse("find essays"));
+        assertEquals(" No matching tasks found.", lobby.getResponse("find /status done"));
+        assertEquals(originalList, lobby.getResponse("list"));
+        assertEquals(originalFile, Files.readString(saveFile));
+        lobby.getResponse("todo check /status done endpoint");
+        assertEquals(heading + " 1.[T][ ] check /status done endpoint", lobby.getResponse("find /status done"));
     }
 
     @Test

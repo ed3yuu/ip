@@ -80,16 +80,17 @@ public class Parser {
     }
 
     /**
-     * Reads and validates the keyword following the {@code find} command.
+     * Reads and validates the description keywords following the {@code find} command.
      *
      * @param command the complete command entered by the user.
-     * @return the keyword to search for
-     * @throws LobbyException if no keyword was provided
+     * @return the trimmed search keywords
+     * @throws LobbyException if no keywords were supplied
      */
-    public String parseFindKeyword(String command) throws LobbyException {
+    public String parseFind(String command) throws LobbyException {
         String keyword = command.substring("find".length()).trim();
         if (keyword.isEmpty()) {
-            throw new LobbyException("Please use find followed by a keyword.");
+            throw new LobbyException(
+                    "A search needs keywords. Try: find <keywords>.");
         }
         return keyword;
     }

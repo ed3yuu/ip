@@ -135,11 +135,14 @@ public class Lobby {
     }
 
     /**
-     * Finds tasks matching the validated search keyword and formats the result.
+     * Finds tasks matching the validated search criteria and formats the result.
      */
     private String handleFind(String command) throws LobbyException {
-        String keyword = parser.parseFindKeyword(command);
-        return responseFormatter.formatTaskList(" Here are the matching tasks in your list:", tasks.find(keyword));
+        TaskList matches = tasks.find(parser.parseFind(command));
+        if (matches.size() == 0) {
+            return " No matching tasks found.";
+        }
+        return responseFormatter.formatTaskList(" Here are the matching tasks in your list:", matches);
     }
 
     /**
@@ -171,20 +174,6 @@ public class Lobby {
         return taskNumber;
     }
 
-    /**
-     * Restores the completion state after a failed save without changing the task list.
-     */
-    private void restoreCompletion(int taskNumber, boolean wasDone) {
-        // Completion changes never remove tasks, so the previously validated number must still exist.
-        assert tasks.containsTaskNumber(taskNumber) : "The task being restored must still exist";
-        if (wasDone) {
-            tasks.mark(taskNumber);
-        } else {
-            tasks.unmark(taskNumber);
-        }
-        // A failed save must leave the in-memory completion state as it was before the command.
-        assert tasks.get(taskNumber).isDone() == wasDone : "Completion rollback must restore the original state";
-    }
     /**
      * Sets completion status for either a user command or a rollback.
      */
